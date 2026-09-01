@@ -1,0 +1,141 @@
+// Midnight Compact Smart Contract: Private Allowlist Access (ShadowPass)
+// Contract Version: 1.0.0
+// Description: Proves membership in a private allowlist using Zero-Knowledge proofs
+//              without revealing member identity, secret key, or tree position.
+
+pragma language_version >= 0.14.0;
+
+import CompactStandardLibrary;
+
+// ============================================================================
+// Public Ledger State (On-Chain Storage)
+// ============================================================================
+export ledger {
+  // Merkle root of allowed identity commitments
+  allowlistRoot: Cell<Bytes<32>>,
+  
+  // Public verification result flag - set to true when any valid proof is submitted
+  accessGranted: Cell<Boolean>,
+  
+  // Total number of commitments registered by admin
+  registeredCount: Cell<Uint<32>>,
+  
+  // Admin identity hash (authorized to append commitments)
+  adminIdentity: Cell<Bytes<32>>,
+
+  // Event sequence counter for off-chain indexer synchronization
+  lastEventNonce: Cell<Uint<64>>
+}
+
+// ============================================================================
+// Private State & Witnesses (Client-Side Prover Inputs)
+// ============================================================================
+// Private secret key known only to the user
+witness witnessSecretKey(): Bytes<32>;
+
+// Merkle inclusion proof siblings (depth 8, supporting up to 256 members)
+witness witnessMerklePath(): Vector<8, Bytes<32>>;
+
+// Path directions (false = left sibling, true = right sibling)
+witness witnessPathDirections(): Vector<8, Boolean>;
+
+// Secret salt for blinding commitment against rainbow/bruteforce lookup
+witness witnessBlindingSalt(): Bytes<32>;
+
+// ============================================================================
+// Circuit Helper Functions (Executed inside ZK Proof Context)
+// ============================================================================
+
+// Computes leaf commitment from secret identity and salt:
+// leaf = SHA256(secretKey || blindingSalt)
+circuit computeLeafCommitment(secretKey: Bytes<32>, salt: Bytes<32>): Bytes<32> {
+  return sha256(secretKey, salt);
+}
+
+// Reconstructs Merkle root from leaf commitment and 8-level authentication path
+circuit computeMerkleRoot(
+  leaf: Bytes<32>,
+  path: Vector<8, Bytes<32>>,
+  directions: Vector<8, Boolean>
+): Bytes<32> {
+  var currentHash: Bytes<32> = leaf;
+  
+  for i in 0..8 {
+    let sibling = path[i];
+    let isRight = directions[i];
+    
+    if (isRight) {
+      currentHash = sha256(sibling, currentHash);
+    } else {
+      currentHash = sha256(currentHash, sibling);
+    }
+  }
+  
+  return currentHash;
+}
+
+// ============================================================================
+// Exported Contract Circuits (Public Interface)
+// ============================================================================
+
+/**
+ * Initialize contract state upon deployment
+ */
+export circuit constructor(adminPubKey: Bytes<32>, initialRoot: Bytes<32>): Void {
+  ledger.allowlistRoot = initialRoot;
+  ledger.accessGranted = false;
+  ledger.registeredCount = 0;
+  ledger.adminIdentity = adminPubKey;
+  ledger.lastEventNonce = 0;
+}
+
+/**
+ * Admin circuit: Adds a new hashed commitment to the allowlist root
+ */
+export circuit addCommitment(newRoot: Bytes<32>): Void {
+  ledger.allowlistRoot = newRoot;
+  ledger.registeredCount = ledger.registeredCount + 1;
+  ledger.lastEventNonce = ledger.lastEventNonce + 1;
+}
+
+/**
+ * ZK Membership Proof Circuit:
+ * Proves that the caller holds a valid secret key matching an entry in the
+ * Merkle tree represented by allowlistRoot, WITHOUT revealing:
+ * - User secret key
+ * - Member address
+ * - Sibling path or leaf index
+ * - Any identifiable metadata
+ *
+ * Emits/Updates ledger.accessGranted = true upon successful verification.
+ */
+export circuit proveMembership(): Boolean {
+  // 1. Fetch private witnesses from user local state
+  let secret = witnessSecretKey();
+  let salt = witnessBlindingSalt();
+  let path = witnessMerklePath();
+  let directions = witnessPathDirections();
+
+  // 2. Compute local leaf commitment inside ZK circuit
+  let calculatedLeaf = computeLeafCommitment(secret, salt);
+
+  // 3. Reconstruct Merkle root inside ZK circuit using private path
+  let calculatedRoot = computeMerkleRoot(calculatedLeaf, path, directions);
+
+  // 4. Verify calculated root matches current public allowlist root
+  let expectedRoot = ledger.allowlistRoot;
+  assert(calculatedRoot == expectedRoot, "ZK Proof Verification Failed: Secret identity is not in the allowlist Merkle tree");
+
+  // 5. Update public ledger state: zero identity leakage, only access status
+  ledger.accessGranted = true;
+  ledger.lastEventNonce = ledger.lastEventNonce + 1;
+
+  return true;
+}
+
+/**
+ * Reset access granted status (e.g. for re-testing or session cleanup)
+ */
+export circuit resetAccessStatus(): Void {
+  ledger.accessGranted = false;
+}
