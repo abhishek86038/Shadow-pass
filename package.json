@@ -1,0 +1,20 @@
+{
+  "name": "shadow-pass",
+  "version": "1.0.0",
+  "private": true,
+  "description": "ShadowPass - Zero-Knowledge Private Allowlist Access dApp built on Midnight Blockchain",
+  "type": "module",
+  "scripts": {
+    "dev": "npm run dev --prefix frontend",
+    "dev:frontend": "npm run dev --prefix frontend",
+    "dev:indexer": "npm run dev --prefix indexer",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "build": "npm run build --prefix contract && npm run build --prefix indexer && npm run build --prefix frontend"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "typescript": "^5.4.0",
+    "vitest": "^1.5.0"
+  }
+}
