@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite --force",
-    "build": "tsc && vite build",
+    "build": "npm install --prefix ../contract && npm run build --prefix ../contract && tsc && vite build",
     "preview": "vite preview"
   },
   "dependencies": {
