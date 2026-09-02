@@ -23,10 +23,10 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          npm ci
-          npm --prefix contract ci
-          npm --prefix indexer ci
-          npm --prefix frontend ci
+          npm install
+          npm --prefix contract install
+          npm --prefix indexer install
+          npm --prefix frontend install
 
       - name: Compile Contracts & Build TypeScript Packages
         run: npm run build
