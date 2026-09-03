@@ -194,7 +194,7 @@ Here is the visual evidence showing the running GhostVault dApp UI, the local Vi
 
 ## 11. Live Demo
 
-🔗 Live demo: [ADD LINK AFTER DEPLOYMENT]
+🔗 Live demo: [shadowpass-moon-level3-green.vercel.app](https://shadowpass-moon-level3-green.vercel.app/)
 
 ---
 
