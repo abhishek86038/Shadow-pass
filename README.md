@@ -182,12 +182,12 @@ Here is the visual evidence showing the running GhostVault dApp UI, the local Vi
 
 | 🛡️ GhostVault / dApp UI | 🧪 Passing Unit & Integration Tests |
 | :---: | :---: |
-| ![GhostVault dApp UI](screenshots/dapp_ui.png) | ![7 Passing Tests](screenshots/image.png) |
+| ![GhostVault dApp UI](screenshots/dapp_ui.png) | ![7 Passing Tests](screenshots/tests_passing.png) |
 | *Modern cyberpunk dark mode UI featuring wallet connection, ZK member proving, and public state tracker.* | *All 7 unit and integration tests passing cleanly across contracts, indexer, and frontend.* |
 
 | 💚 GitHub Actions CI/CD Run Status |
 | :---: |
-| ![CI/CD pipeline green status](screenshots/image-1.png) |
+| ![CI/CD pipeline green status](screenshots/cicd_run.png) |
 | *Automated GitHub Actions workflow completing build and test suites with a passing status.* |
 
 ---
