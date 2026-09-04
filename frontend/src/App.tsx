@@ -39,10 +39,11 @@ export default function GhostVault() {
 
   const [ledger, setLedger] = useState<PublicLedgerState>(getLedgerState());
   const [activeTab, setActiveTab] = useState<'prove' | 'admin' | 'privacy'>('prove');
+  const [showWalletModal, setShowWalletModal] = useState<boolean>(false);
 
   // Form State
-  const [secretKey, setSecretKey] = useState<string>(DEMO_MEMBER_1.secret);
-  const [blindingSalt, setBlindingSalt] = useState<string>(DEMO_MEMBER_1.salt);
+  const [secretKey, setSecretKey] = useState<string>('');
+  const [blindingSalt, setBlindingSalt] = useState<string>('');
   const [isProving, setIsProving] = useState<boolean>(false);
   const [proofResult, setProofResult] = useState<ProofResult | null>(null);
 
@@ -59,7 +60,7 @@ export default function GhostVault() {
     refreshLedger();
   }, []);
 
-  const handleWalletToggle = async () => {
+  const handleWalletToggle = () => {
     if (wallet.isConnected) {
       setWallet({
         isConnected: false,
@@ -69,9 +70,27 @@ export default function GhostVault() {
         walletName: 'Lace'
       });
     } else {
-      const state = await connectLaceWallet();
-      setWallet(state);
+      setShowWalletModal(true);
     }
+  };
+
+  const handleConnectLace = async () => {
+    setShowWalletModal(false);
+    const state = await connectLaceWallet();
+    setWallet(state);
+  };
+
+  const handleDemoMode = () => {
+    setShowWalletModal(false);
+    setWallet({
+      isConnected: true,
+      address: 'midnight1demo9q7z9w8x7y6v5u4t3s2r1q0p9o8n7m',
+      network: 'Demo Mode (Simulator)',
+      isLaceInstalled: false,
+      walletName: 'Simulated'
+    });
+    setSecretKey(DEMO_MEMBER_1.secret);
+    setBlindingSalt(DEMO_MEMBER_1.salt);
   };
 
   const handleProve = async (e: FormEvent) => {
@@ -151,9 +170,58 @@ export default function GhostVault() {
             >
               <KeyRound size={16} />
               {wallet.isConnected
-                ? `${wallet.walletName || 'Vault'}: ${wallet.address?.slice(0, 6)}...${wallet.address?.slice(-4)}`
-                : 'Connect Freighter / Lace Vault'}
+                ? `${wallet.walletName}: ${wallet.address?.slice(0, 8)}...${wallet.address?.slice(-4)}`
+                : 'Connect Wallet'}
             </button>
+
+            {/* Wallet Selection Modal */}
+            {showWalletModal && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={() => setShowWalletModal(false)}>
+                <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
+                <div
+                  className="relative z-10 w-full max-w-sm mx-4 rounded-2xl bg-[#0a0a0a] border border-white/10 p-6 shadow-2xl shadow-cyan-500/10"
+                  onClick={e => e.stopPropagation()}
+                >
+                  <h3 className="text-lg font-bold mb-1">Connect Wallet</h3>
+                  <p className="text-xs text-slate-400 mb-5">Choose how you want to connect to ShadowPass</p>
+
+                  {/* Lace Wallet Option */}
+                  <button
+                    onClick={handleConnectLace}
+                    className="w-full flex items-center gap-4 p-4 rounded-xl border border-cyan-500/20 bg-cyan-500/5 hover:bg-cyan-500/10 hover:border-cyan-500/40 transition-all mb-3 text-left"
+                  >
+                    <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center shrink-0">
+                      <KeyRound size={18} className="text-black" />
+                    </div>
+                    <div>
+                      <p className="font-semibold text-sm">Midnight Lace Wallet</p>
+                      <p className="text-xs text-slate-400">Connect via Lace browser extension</p>
+                    </div>
+                  </button>
+
+                  {/* Demo Mode Option */}
+                  <button
+                    onClick={handleDemoMode}
+                    className="w-full flex items-center gap-4 p-4 rounded-xl border border-emerald-500/20 bg-emerald-500/5 hover:bg-emerald-500/10 hover:border-emerald-500/40 transition-all text-left"
+                  >
+                    <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center shrink-0">
+                      <Zap size={18} className="text-black" />
+                    </div>
+                    <div>
+                      <p className="font-semibold text-sm">Demo Mode</p>
+                      <p className="text-xs text-slate-400">Try with pre-loaded simulator credentials</p>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => setShowWalletModal(false)}
+                    className="w-full mt-4 text-xs text-slate-500 hover:text-slate-300 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </header>
