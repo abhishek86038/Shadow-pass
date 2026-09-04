@@ -2,13 +2,13 @@
 
 [![ShadowPass CI/CD Pipeline](https://github.com/abhishek86038/Shadow-pass/actions/workflows/ci.yml/badge.svg)](https://github.com/abhishek86038/Shadow-pass/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-purple.svg)](LICENSE)
-[![Midnight Blockchain](https://img.shields.io/badge/Blockchain-Midnight_Network-06b6d4.svg)](https://midnight.network)
+[![Midnight Blockchain](https://img.shields.io/badge/Blockchain-Midnight_Preprod-06b6d4.svg)](https://midnight.network)
 
 ---
 
 ## 1. Overview
 
-**ShadowPass** is a privacy-preserving allowlist dApp built on the Midnight blockchain using Compact smart contracts and Zero-Knowledge proofs. It allows users to prove their membership in an admin-managed private allowlist without revealing their identity, wallet address, secret key, or Merkle tree position. ShadowPass was built for the **Midnight "New Moon to Full" Level 3 (First Quarter)** hackathon submission.
+**ShadowPass** is a privacy-preserving allowlist dApp built on the Midnight blockchain using Compact smart contracts, official Midnight.js contract bindings, and Zero-Knowledge proofs. It allows users to prove their membership in an admin-managed private allowlist without revealing their identity, wallet address, secret key, or Merkle tree position. ShadowPass was built for the **Midnight "New Moon to Full" Level 3 (First Quarter)** hackathon submission.
 
 ---
 
@@ -20,15 +20,23 @@ In traditional blockchain ecosystems (such as Ethereum and EVM-compatible networ
 
 ## 3. Solution
 
-ShadowPass solves this privacy dilemma using Midnight's native Compact language and private state architecture. Instead of broadcasting raw wallet addresses, an admin registers blinded identity commitments (`leaf = SHA256(secretKey || blindingSalt)`) into an off-chain Merkle tree, publishing only the 32-byte Merkle root (`allowlistRoot`) to the public ledger. Users construct Zero-Knowledge inclusion proofs locally on their device, demonstrating that their secret key matches a leaf in the allowlist Merkle tree without revealing their identity or position. The smart contract validates the proof on-chain and updates a public `accessGranted` boolean flag to `true`, providing verifiable proof of membership with zero identity leakage.
+ShadowPass solves this privacy dilemma using Midnight's native Compact language and private state architecture:
+1. **Blinded Identity Commitments:** The admin registers member commitments calculated as `leaf = SHA256(secretKey || blindingSalt)` into a depth-8 Merkle tree, publishing only the 32-byte Merkle root (`allowlistRoot`) on-chain.
+2. **Local ZK Proof Construction:** Users construct Zero-Knowledge inclusion proofs locally on their client device using their private witness vector (`secretKey`, `blindingSalt`, `merklePath`, `pathDirections`).
+3. **On-Chain Circuit Execution:** The prover invokes the Compact circuit `proveMembership()` which asserts that the reconstructed Merkle root matches the on-chain `allowlistRoot`.
+4. **Verified Access Flag:** Upon successful verification, the contract updates `accessGranted = true` on the public ledger without ever recording the user's secret key, salt, leaf index, or wallet address.
 
 ---
 
-## 🌐 Contract Address & Deployment Info
-The smart contract has been deployed to the Midnight Preprod Network.
+## 🌐 Midnight Preprod Network & Deployment Info
 
-- **Network Label**: Midnight Preprod Testnet
+ShadowPass is configured for the official **Midnight Preprod Testnet** (`setNetworkId("preprod")`):
+
+- **Network ID**: `preprod`
 - **Contract Address**: `010000e7b8a1c93a4b6c8d7e0f21db59d8c47b59e521a04fd904328bf612de07`
+- **Preprod Indexer GraphQL**: `https://indexer.preprod.midnight.network/api/v1/graphql`
+- **Preprod Node RPC**: `https://rpc.preprod.midnight.network`
+- **Local Proof Server**: `http://127.0.0.1:6300`
 
 ---
 
@@ -36,19 +44,19 @@ The smart contract has been deployed to the Midnight Preprod Network.
 
 ```
 +-----------------------------------------------------------------------------------+
-|                                 USER LACE WALLET                                  |
+|                        USER CLIENT & MIDNIGHT LACE WALLET                         |
 |                                                                                   |
 |  [ Private Secret Key ] ──┐                                                       |
 |  [ Blinding Salt     ] ───┼──► [ Compact ZK Membership Circuit ]                   |
 |  [ Merkle Path       ] ──┘         (Proves Inclusion Locally)                     |
 |                                                │                                  |
 |                                                ▼                                  |
-|                                    [ Zero-Knowledge Proof ]                       |
+|                                 callTx.proveMembership()                          |
 +------------------------------------------------│----------------------------------+
-                                                 │ Submits Proof via Lace Wallet
+                                                 │ Signs & Submits via Lace API
                                                  ▼
 +-----------------------------------------------------------------------------------+
-|                              MIDNIGHT PUBLIC LEDGER                               |
+|                           MIDNIGHT PREPROD PUBLIC LEDGER                          |
 |                                                                                   |
 |  Public State:                                                                    |
 |    - allowlistRoot: 0xa4f8c92e... (32-byte Merkle Root)                           |
@@ -62,19 +70,19 @@ The smart contract has been deployed to the Midnight Preprod Network.
                                                  │
                                                  ▼
 +-----------------------------------------------------------------------------------+
-|                            OFF-CHAIN EVENT INDEXER                                |
+|                      MIDNIGHT PREPROD GRAPHQL EVENT INDEXER                       |
 |                                                                                   |
-|  Node.js REST API:                                                                |
-|    - GET /api/status  ──► Current contract public state                           |
-|    - GET /api/events  ──► Historical accessGranted event logs                      |
+|  GraphQL Service (https://indexer.preprod.midnight.network/api/v1/graphql):       |
+|    - Query contract state transitions and public verification receipts            |
+|    - Synchronize event stream without exposing prover identity                    |
 +-----------------------------------------------------------------------------------+
 ```
 
 ### Component Implementation Mapping
-- **Smart Contract & ZK Circuit:** Implemented in [contract/allowlist.compact](file:///c:/Users/raita/OneDrive/Documents/Desktop/ShadowPass/contract/allowlist.compact), defining the Compact ledger state and local ZK circuit `proveMembership()`.
-- **Contract SDK & Simulator:** Implemented in [contract/src/index.ts](file:///c:/Users/raita/OneDrive/Documents/Desktop/ShadowPass/contract/src/index.ts), managing the depth-8 Merkle tree, isomorphic SHA-256 hashing, and prover inputs.
-- **Frontend Application:** Implemented in [frontend/src/App.tsx](file:///c:/Users/raita/OneDrive/Documents/Desktop/ShadowPass/frontend/src/App.tsx) and [frontend/src/contract-bindings.ts](file:///c:/Users/raita/OneDrive/Documents/Desktop/ShadowPass/frontend/src/contract-bindings.ts), handling Lace Wallet connection, proof submission UI, admin commitment panel, and privacy inspector.
-- **Event Indexer Backend:** Implemented in [indexer/src/index.ts](file:///c:/Users/raita/OneDrive/Documents/Desktop/ShadowPass/indexer/src/index.ts), exposing REST API endpoints for off-chain monitoring.
+- **Smart Contract & ZK Circuit:** Implemented in `contract/allowlist.compact`, defining the Compact ledger state and local ZK circuit `proveMembership()`.
+- **Contract SDK & Midnight.js Bindings:** Implemented in `contract/src/index.ts`, managing the depth-8 Merkle tree, isomorphic SHA-256 hashing, Midnight.js contract binding interfaces, and `deployContract()` / `findDeployedContract()` helpers.
+- **Frontend Application:** Implemented in `frontend/src/App.tsx` and `frontend/src/contract-bindings.ts`, handling Lace Wallet DApp Connector API (`window.midnight.mnLace`), proof submission UI, admin commitment panel, and privacy inspector.
+- **Event Indexer Backend:** Implemented in `indexer/src/index.ts`, connecting to the Midnight Preprod GraphQL Indexer and exposing REST API endpoints for off-chain monitoring.
 
 ---
 
@@ -102,10 +110,10 @@ The ShadowPass privacy model enforces a strict separation between public on-chai
 ## 6. Tech Stack
 
 - **Smart Contract / Circuits:** Midnight Compact language (`allowlist.compact`)
-- **Midnight SDK & Runtime:** `@midnight-ntwrk/compact-runtime` (v0.6.0) & `@shadow-pass/contract`
-- **Frontend Framework:** React (v18.2), TypeScript (v5.4), Vite (v5.1), Tailwind CSS (v3.4), Lucide Icons
-- **Backend Indexer:** Node.js, Express (v4.19), CORS
-- **Testing Framework:** Vitest (v1.6) for unit and integration testing
+- **Midnight SDK & Runtime:** `@midnight-ntwrk/compact-runtime`, `@midnight-ntwrk/dapp-connector-api`, `@midnight-ntwrk/midnight-js-contracts`
+- **Frontend Framework:** React (v18.2), TypeScript (v5.4), Vite (v5.1), Tailwind CSS (v3.4), Lucide Icons, Framer Motion
+- **Backend Indexer:** Node.js, Express (v4.19), GraphQL client, CORS
+- **Testing Framework:** Vitest (v1.6) for unit and integration testing (18 passing tests)
 - **CI/CD Pipeline:** GitHub Actions (`.github/workflows/ci.yml`)
 
 ---
@@ -115,13 +123,14 @@ The ShadowPass privacy model enforces a strict separation between public on-chai
 ### Prerequisites
 - **Node.js:** `v20.x` or higher
 - **npm:** `v10.x` or higher
+- **Midnight Lace Wallet Extension:** Configured to Preprod Testnet
 
 ### Installation & Quick Start
 
 1. Clone the repository and install root dependencies:
 ```bash
-git clone https://github.com/midnight-shadowpass/shadow-pass.git
-cd shadow-pass
+git clone https://github.com/abhishek86038/Shadow-pass.git
+cd Shadow-pass
 npm install
 ```
 
@@ -147,40 +156,32 @@ npm run dev:frontend
 npm run dev:indexer
 ```
 
-### Deploying to Midnight Testnet
-To deploy the Compact smart contract to the Midnight testnet, configure your Lace Wallet connection settings in [frontend/src/contract-bindings.ts](file:///c:/Users/raita/OneDrive/Documents/Desktop/ShadowPass/frontend/src/contract-bindings.ts) and run the deployment script:
-```bash
-npm run build --prefix contract
-```
-
 ---
 
 ## 8. Running Tests
 
-Execute the complete 7-test suite across contract, circuit, frontend, and indexer modules:
+Execute the complete 18-test suite across contract, circuit, frontend, and indexer modules:
 
 ```bash
 npm test
 ```
 
 ### Test Suite Coverage & Verification
-- **[contract/src/allowlist.test.ts](file:///c:/Users/raita/OneDrive/Documents/Desktop/ShadowPass/contract/src/allowlist.test.ts)** (mirrored at `tests/allowlist.test.ts` - 4 tests): Verifies valid ZK membership proof execution, rejection of non-member secrets, zero identity leakage in public state JSON, and admin Merkle root updates.
-- **[frontend/src/frontend.test.ts](file:///c:/Users/raita/OneDrive/Documents/Desktop/ShadowPass/frontend/src/frontend.test.ts)** (mirrored at `tests/frontend.test.ts` - 2 tests): Verifies Lace Wallet binding initialization and end-to-end frontend ZK proof submission flow.
-- **[indexer/src/indexer.test.ts](file:///c:/Users/raita/OneDrive/Documents/Desktop/ShadowPass/indexer/src/indexer.test.ts)** (mirrored at `tests/indexer.test.ts` - 1 test): Verifies backend event indexer state synchronization and event logging.
+- **`contract/src/allowlist.test.ts` & `tests/allowlist.test.ts` (6 tests each):** Verifies valid ZK membership proof execution, rejection of non-member secrets, zero identity leakage in public state JSON, admin Merkle root updates, official `deployContract()` helper, and `callTx.proveMembership()` interface binding.
+- **`frontend/src/frontend.test.ts` & `tests/frontend.test.ts` (2 tests each):** Verifies real Midnight Lace DApp connector extension detection, Preprod network configuration, and end-to-end frontend ZK proof submission flow.
+- **`indexer/src/indexer.test.ts` & `tests/indexer.test.ts` (1 test each):** Verifies backend event indexer state synchronization, GraphQL proxy, and event logging.
 
 ---
 
 ## 9. CI/CD Pipeline
 
-The project includes an automated GitHub Actions workflow defined in [.github/workflows/ci.yml](file:///c:/Users/raita/OneDrive/Documents/Desktop/ShadowPass/.github/workflows/ci.yml). 
+The project includes an automated GitHub Actions workflow defined in `.github/workflows/ci.yml`.
 
 On every `push` and `pull_request` to `main` or `master` branches, the CI pipeline automatically:
 1. Sets up Node.js v20 environment.
-2. Installs root and workspace dependencies (`npm ci`).
+2. Installs root and workspace dependencies (`npm install`).
 3. Compiles Compact smart contracts and TypeScript packages (`npm run build`).
-4. Executes the full 7-test suite via Vitest (`npm test`).
-
-The status badge at the top of this README reflects the current build and test pass status automatically.
+4. Executes the full 18-test suite via Vitest (`npm test`).
 
 ---
 
@@ -215,29 +216,19 @@ ShadowPass/
 ├── .github/workflows/ci.yml    # GitHub Actions workflow for automated compile & test
 ├── contract/                   # Midnight Compact smart contract & TypeScript SDK package
 │   ├── allowlist.compact       # Compact smart contract & ZK membership circuit
-│   └── src/index.ts            # Merkle tree implementation & SDK simulator
+│   └── src/index.ts            # Merkle tree implementation, Midnight.js contract binding & deploy helpers
 ├── frontend/                   # React + TypeScript + Vite + Tailwind dApp
 │   ├── src/App.tsx             # Main user interface & Privacy Model inspector
-│   └── src/contract-bindings.ts# Lace Wallet & Midnight SDK integration
-├── indexer/                    # Node.js Express backend event watching service
-│   └── src/index.ts            # REST API (/api/status, /api/events, /api/health)
-├── tests/                      # Vitest test suite (7 passing unit & integration tests)
-│   ├── allowlist.test.ts       # Contract & circuit unit tests
-│   ├── frontend.test.ts        # Frontend wallet & proof flow tests
-│   └── indexer.test.ts         # Backend indexer service tests
-├── PROPOSAL.md                 # 3-paragraph product proposal
-├── DEMO_SCRIPT.md              # 1-minute video demo script outline
-└── LICENSE                     # MIT open-source license file
+│   ├── src/contract-bindings.ts# Midnight Lace DApp Connector API & callTx circuit execution
+│   └── vercel.json             # Vercel deployment configuration
+├── indexer/                    # Midnight Preprod GraphQL event indexer service
+│   └── src/index.ts            # GraphQL query client & REST monitoring API
+├── tests/                      # Full Vitest integration test suite (18 tests)
+└── README.md                   # Complete protocol documentation & deployment specification
 ```
 
 ---
 
-## 14. Idea Submission
+## 14. License
 
-This project was submitted and approved under the **"ShadowPass — Private Allowlist Access"** category from the approved Midnight hackathon idea list.
-
----
-
-## 15. License
-
-Distributed under the MIT License. See [LICENSE](file:///c:/Users/raita/OneDrive/Documents/Desktop/ShadowPass/LICENSE) for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

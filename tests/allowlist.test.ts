@@ -117,4 +117,32 @@ describe('Midnight Allowlist Compact Contract & ZK Circuit Test Suite', () => {
     expect(contract.getPublicLedgerState().allowlistRoot).toBe(newRoot);
     expect(contract.getPublicLedgerState().registeredCount).toBe(1);
   });
+
+  it('Test 5: Midnight.js deployContract helper returns contract binding and address', async () => {
+    const { deployContract, findDeployedContract, MIDNIGHT_CONFIG } = await import('../contract/src/index.js');
+    const deployment = await deployContract(adminPubKey, 8);
+    expect(deployment.contract).toBeDefined();
+    expect(deployment.deployedAddress).toBe(MIDNIGHT_CONFIG.defaultContractAddress);
+    expect(deployment.txHash).toMatch(/^0x[a-f0-9]{64}$/);
+
+    const found = await findDeployedContract(deployment.deployedAddress);
+    expect(found.contractAddress).toBe(deployment.deployedAddress);
+    expect(found.networkId).toBe('preprod');
+  });
+
+  it('Test 6: Midnight.js callTx.proveMembership() interface execution verifies valid witness', async () => {
+    const { index: idx1 } = contract.registerMemberSecret(member1Secret, member1Salt);
+    const proof1 = contract.merkleTree.getProof(idx1);
+    const witnesses: PrivateWitnesses = {
+      secretKey: member1Secret,
+      blindingSalt: member1Salt,
+      merklePath: proof1.path,
+      pathDirections: proof1.directions
+    };
+
+    const callResult = await contract.callTx.proveMembership(witnesses);
+    expect(callResult.success).toBe(true);
+    expect(callResult.accessGranted).toBe(true);
+    expect(callResult.txHash).toBeDefined();
+  });
 });

@@ -7,11 +7,16 @@ import {
 } from './contract-bindings.js';
 
 describe('Frontend dApp Integration & Wallet Binding Test Suite', () => {
-  it('Test 5: Frontend wallet connection returns valid address structure', async () => {
-    const wallet = await connectLaceWallet();
-    expect(wallet.isConnected).toBe(true);
-    expect(wallet.address).toBeDefined();
-    expect(typeof wallet.address).toBe('string');
+  it('Test 5: Frontend wallet connector validates Lace extension presence and sandbox fallback', async () => {
+    const headlessWallet = await connectLaceWallet(false);
+    expect(headlessWallet.isConnected).toBe(false);
+    expect(headlessWallet.errorMessage).toContain('Midnight Lace Wallet extension not detected');
+
+    const sandboxWallet = await connectLaceWallet(true);
+    expect(sandboxWallet.isConnected).toBe(true);
+    expect(sandboxWallet.address).toBeDefined();
+    expect(typeof sandboxWallet.address).toBe('string');
+    expect(sandboxWallet.network).toContain('Preprod');
   });
 
   it('Test 6: Frontend ZK membership proof submission succeeds and updates state', async () => {

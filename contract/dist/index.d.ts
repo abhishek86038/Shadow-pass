@@ -1,3 +1,11 @@
+export declare const MIDNIGHT_CONFIG: {
+    networkId: "preprod";
+    indexerUri: string;
+    indexerWsUri: string;
+    nodeRpcUri: string;
+    proofServerUri: string;
+    defaultContractAddress: string;
+};
 export interface PublicLedgerState {
     allowlistRoot: string;
     accessGranted: boolean;
@@ -17,19 +25,22 @@ export interface ProofResult {
     proofVerified: boolean;
     error?: string;
     txHash?: string;
+    blockHeight?: number;
 }
-/**
- * Computes SHA-256 hash of string or hex input
- */
+export interface MidnightContractBinding<TState = PublicLedgerState> {
+    contractAddress: string;
+    networkId: 'preprod' | 'testnet' | 'undeployed';
+    getPublicLedgerState: () => TState | Promise<TState>;
+    callTx: {
+        proveMembership: (witnesses: PrivateWitnesses) => Promise<ProofResult>;
+        registerMember?: (commitment: string) => Promise<{
+            txHash: string;
+            newRoot: string;
+        }>;
+    };
+}
 export declare function sha256Hash(data: string): string;
-/**
- * Computes leaf commitment hash matching Compact circuit:
- * leaf = SHA256(secretKey || blindingSalt)
- */
 export declare function computeCommitment(secretKey: string, blindingSalt: string): string;
-/**
- * Concatenates two hashes and returns SHA-256 digest
- */
 export declare function sha256Concat(left: string, right: string): string;
 export declare class MerkleTree {
     depth: number;
@@ -44,11 +55,21 @@ export declare class MerkleTree {
     };
     private computeZeroRoot;
 }
-export declare class AllowlistContract {
+export declare class AllowlistContract implements MidnightContractBinding {
+    contractAddress: string;
+    networkId: 'preprod' | 'testnet' | 'undeployed';
     private ledger;
     merkleTree: MerkleTree;
-    constructor(adminPubKey: string, treeDepth?: number);
+    callTx: {
+        proveMembership: (witnesses: PrivateWitnesses) => Promise<ProofResult>;
+        registerMember?: (commitment: string) => Promise<{
+            txHash: string;
+            newRoot: string;
+        }>;
+    };
+    constructor(adminPubKey: string, treeDepth?: number, contractAddress?: string);
     getPublicLedgerState(): PublicLedgerState;
+    queryLedgerState(): Promise<PublicLedgerState>;
     registerMemberSecret(secretKey: string, blindingSalt: string): {
         commitment: string;
         index: number;
@@ -61,3 +82,15 @@ export declare class AllowlistContract {
     proveMembership(witnesses: PrivateWitnesses): ProofResult;
     resetAccessStatus(): void;
 }
+/**
+ * Official Midnight.js deployContract helper function
+ */
+export declare function deployContract(adminPubKey: string, treeDepth?: number): Promise<{
+    contract: AllowlistContract;
+    deployedAddress: string;
+    txHash: string;
+}>;
+/**
+ * Official Midnight.js findDeployedContract helper function
+ */
+export declare function findDeployedContract(contractAddress: string): Promise<AllowlistContract>;

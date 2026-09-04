@@ -32,14 +32,15 @@ export default function GhostVault() {
   const [wallet, setWallet] = useState<WalletState>({
     isConnected: false,
     address: null,
-    network: 'Midnight Testnet',
+    network: 'Midnight Preprod',
     isLaceInstalled: false,
-    walletName: 'Lace'
+    walletName: 'Disconnected'
   });
 
   const [ledger, setLedger] = useState<PublicLedgerState>(getLedgerState());
   const [activeTab, setActiveTab] = useState<'prove' | 'admin' | 'privacy'>('prove');
   const [showWalletModal, setShowWalletModal] = useState<boolean>(false);
+  const [walletError, setWalletError] = useState<string | null>(null);
 
   // Form State
   const [secretKey, setSecretKey] = useState<string>('');
@@ -65,10 +66,11 @@ export default function GhostVault() {
       setWallet({
         isConnected: false,
         address: null,
-        network: 'Midnight Testnet',
+        network: 'Midnight Preprod',
         isLaceInstalled: false,
-        walletName: 'Lace'
+        walletName: 'Disconnected'
       });
+      setWalletError(null);
     } else {
       setShowWalletModal(true);
     }
@@ -76,19 +78,19 @@ export default function GhostVault() {
 
   const handleConnectLace = async () => {
     setShowWalletModal(false);
-    const state = await connectLaceWallet();
+    setWalletError(null);
+    const state = await connectLaceWallet(false);
     setWallet(state);
+    if (!state.isConnected && state.errorMessage) {
+      setWalletError(state.errorMessage);
+    }
   };
 
-  const handleDemoMode = () => {
+  const handleDemoMode = async () => {
     setShowWalletModal(false);
-    setWallet({
-      isConnected: true,
-      address: 'midnight1demo9q7z9w8x7y6v5u4t3s2r1q0p9o8n7m',
-      network: 'Demo Mode (Simulator)',
-      isLaceInstalled: false,
-      walletName: 'Simulated'
-    });
+    setWalletError(null);
+    const state = await connectLaceWallet(true);
+    setWallet(state);
     setSecretKey(DEMO_MEMBER_1.secret);
     setBlindingSalt(DEMO_MEMBER_1.salt);
   };
@@ -225,6 +227,24 @@ export default function GhostVault() {
           </div>
         </div>
       </header>
+
+      {/* WALLET ERROR BANNER */}
+      {walletError && (
+        <div className="max-w-7xl mx-auto px-6 pt-4">
+          <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <XCircle size={16} />
+              <span>{walletError}</span>
+            </div>
+            <button
+              onClick={() => setWalletError(null)}
+              className="text-amber-400 hover:text-white font-mono text-xs px-2 py-1"
+            >
+              Dismiss
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* HERO SECTION */}
       <div className="max-w-7xl mx-auto px-6 pt-12 pb-6">
