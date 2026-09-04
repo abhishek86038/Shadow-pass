@@ -221,6 +221,7 @@ export default function GhostVault() {
               {wallet.isConnected
                 ? `${wallet.walletName}: ${wallet.address?.slice(0, 8)}...${wallet.address?.slice(-4)}`
                 : 'Connect Wallet'}
+            </button>
           </div>
         </div>
       </header>
