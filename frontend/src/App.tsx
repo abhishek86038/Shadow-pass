@@ -170,13 +170,29 @@ export default function GhostVault() {
             <h3 className="text-lg font-bold mb-1 text-white">Connect Wallet</h3>
             <p className="text-xs text-slate-400 mb-5">Choose how you want to connect to ShadowPass</p>
 
-            {/* Lace Wallet Option */}
+            {/* 1AM Wallet Option */}
             <button
               onClick={handleConnectLace}
-              className="w-full flex items-center gap-4 p-4 rounded-xl border border-cyan-500/20 bg-cyan-500/5 hover:bg-cyan-500/10 hover:border-cyan-500/40 transition-all mb-3 text-left"
+              className="w-full flex items-center gap-4 p-4 rounded-xl border border-cyan-500/30 bg-cyan-500/10 hover:bg-cyan-500/20 hover:border-cyan-400 transition-all mb-3 text-left"
             >
-              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center shrink-0">
+              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-cyan-400 to-emerald-400 flex items-center justify-center shrink-0">
                 <KeyRound size={18} className="text-black" />
+              </div>
+              <div>
+                <p className="font-semibold text-sm text-white flex items-center gap-1.5">
+                  1AM Wallet <span className="text-[10px] bg-cyan-400/20 text-cyan-300 px-1.5 py-0.5 rounded font-mono">Recommended</span>
+                </p>
+                <p className="text-xs text-slate-400">Connect via 1AM Midnight extension</p>
+              </div>
+            </button>
+
+            {/* Midnight Lace Wallet Option */}
+            <button
+              onClick={handleConnectLace}
+              className="w-full flex items-center gap-4 p-4 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 hover:border-white/20 transition-all mb-3 text-left"
+            >
+              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-400 to-indigo-500 flex items-center justify-center shrink-0">
+                <Shield size={18} className="text-white" />
               </div>
               <div>
                 <p className="font-semibold text-sm text-white">Midnight Lace Wallet</p>
@@ -193,7 +209,7 @@ export default function GhostVault() {
                 <Zap size={18} className="text-black" />
               </div>
               <div>
-                <p className="font-semibold text-sm text-white">Demo Mode</p>
+                <p className="font-semibold text-sm text-white">Demo Mode (Sandbox)</p>
                 <p className="text-xs text-slate-400">Try with pre-loaded simulator credentials</p>
               </div>
             </button>
