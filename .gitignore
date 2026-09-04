@@ -6,3 +6,6 @@ build
 coverage
 *.log
 .DS_Store
+.env
+.env.local
+.env.*

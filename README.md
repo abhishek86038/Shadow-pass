@@ -232,3 +232,14 @@ ShadowPass/
 ## 14. License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+## 15. Repository & Project Details
+
+- **GitHub Repository**: [https://github.com/abhishek86038/Shadow-pass](https://github.com/abhishek86038/Shadow-pass)
+- **Primary Branch**: `main`
+- **Author / Maintainer**: `abhishek86038`
+- **Live dApp URL**: [https://shadow-pass.vercel.app/](https://shadow-pass.vercel.app/)
+- **Demo Video**: [https://photos.app.goo.gl/UPcnamPqq9xaidDWA](https://photos.app.goo.gl/UPcnamPqq9xaidDWA)
+
