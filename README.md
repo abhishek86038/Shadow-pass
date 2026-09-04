@@ -181,12 +181,11 @@ The status badge at the top of this README reflects the current build and test p
 Here is the visual evidence showing the running GhostVault dApp UI, the local Vitest suite execution, and the GitHub Actions CI/CD run status:
 
 ***🛡️ GhostVault / dApp UI ***
-![dApp UI](image.png)
+![alt text](image.png)
 ***🧪 Passing Unit & Integration Tests***
-![Tests Passing](image-2.png)
+![alt text](image-2.png)
 ***💚 GitHub Actions CI/CD Run Status ***
-![CI/CD Run](image-1.png)
-
+![alt text](image-1.png)
 ---
 
 ## 11. Live Demo
@@ -197,7 +196,7 @@ Here is the visual evidence showing the running GhostVault dApp UI, the local Vi
 
 ## 12. Demo Video
 
-🎥 Demo video (1 min): [ADD LINK AFTER RECORDING]
+🎥 Demo video (1 min): [Watch Demo Video](https://photos.app.goo.gl/UPcnamPqq9xaidDWA)
 
 ---
 
