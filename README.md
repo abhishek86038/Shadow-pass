@@ -1,6 +1,6 @@
 # ShadowPass — Zero-Knowledge Private Allowlist Access dApp
 
-[![ShadowPass CI/CD Pipeline](https://github.com/abhishek86038/Shadowpass-moon-level3/actions/workflows/ci.yml/badge.svg)](https://github.com/abhishek86038/Shadowpass-moon-level3/actions/workflows/ci.yml)
+[![ShadowPass CI/CD Pipeline](https://github.com/abhishek86038/Shadow-pass/actions/workflows/ci.yml/badge.svg)](https://github.com/abhishek86038/Shadow-pass/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-purple.svg)](LICENSE)
 [![Midnight Blockchain](https://img.shields.io/badge/Blockchain-Midnight_Network-06b6d4.svg)](https://midnight.network)
 
@@ -198,7 +198,7 @@ Here is the visual evidence showing the running GhostVault dApp UI, the local Vi
 
 ## 11. Live Demo
 
-🔗 Live demo: [shadowpass-moon-level3-okq1.vercel.app](https://shadowpass-moon-level3-okq1.vercel.app/)
+🔗 Live demo: [shadow-pass.vercel.app](https://shadow-pass.vercel.app/)
 
 ---
 
