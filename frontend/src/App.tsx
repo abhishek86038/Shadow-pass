@@ -138,7 +138,56 @@ export default function GhostVault() {
   };
 
   return (
-    <div className="min-h-screen bg-[#030303] text-white relative overflow-hidden font-[Inter] selection:bg-cyan-500 selection:text-black">
+    <div className="min-h-screen bg-[#030303] text-white relative font-[Inter] selection:bg-cyan-500 selection:text-black">
+
+      {/* Wallet Selection Modal — root level so it renders above everything */}
+      {showWalletModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center" onClick={() => setShowWalletModal(false)}>
+          <div className="absolute inset-0 bg-black/75 backdrop-blur-md" />
+          <div
+            className="relative z-10 w-full max-w-sm mx-4 rounded-2xl bg-[#0d0d0d] border border-white/10 p-6 shadow-2xl shadow-cyan-500/20"
+            onClick={e => e.stopPropagation()}
+          >
+            <h3 className="text-lg font-bold mb-1 text-white">Connect Wallet</h3>
+            <p className="text-xs text-slate-400 mb-5">Choose how you want to connect to ShadowPass</p>
+
+            {/* Lace Wallet Option */}
+            <button
+              onClick={handleConnectLace}
+              className="w-full flex items-center gap-4 p-4 rounded-xl border border-cyan-500/20 bg-cyan-500/5 hover:bg-cyan-500/10 hover:border-cyan-500/40 transition-all mb-3 text-left"
+            >
+              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center shrink-0">
+                <KeyRound size={18} className="text-black" />
+              </div>
+              <div>
+                <p className="font-semibold text-sm text-white">Midnight Lace Wallet</p>
+                <p className="text-xs text-slate-400">Connect via Lace browser extension</p>
+              </div>
+            </button>
+
+            {/* Demo Mode Option */}
+            <button
+              onClick={handleDemoMode}
+              className="w-full flex items-center gap-4 p-4 rounded-xl border border-emerald-500/20 bg-emerald-500/5 hover:bg-emerald-500/10 hover:border-emerald-500/40 transition-all text-left"
+            >
+              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center shrink-0">
+                <Zap size={18} className="text-black" />
+              </div>
+              <div>
+                <p className="font-semibold text-sm text-white">Demo Mode</p>
+                <p className="text-xs text-slate-400">Try with pre-loaded simulator credentials</p>
+              </div>
+            </button>
+
+            <button
+              onClick={() => setShowWalletModal(false)}
+              className="w-full mt-4 text-xs text-slate-500 hover:text-slate-300 transition-colors py-2"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Cyber Grid + Neon Glow Background */}
       <div className="fixed inset-0 -z-10 pointer-events-none">
@@ -172,56 +221,6 @@ export default function GhostVault() {
               {wallet.isConnected
                 ? `${wallet.walletName}: ${wallet.address?.slice(0, 8)}...${wallet.address?.slice(-4)}`
                 : 'Connect Wallet'}
-            </button>
-
-            {/* Wallet Selection Modal */}
-            {showWalletModal && (
-              <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={() => setShowWalletModal(false)}>
-                <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
-                <div
-                  className="relative z-10 w-full max-w-sm mx-4 rounded-2xl bg-[#0a0a0a] border border-white/10 p-6 shadow-2xl shadow-cyan-500/10"
-                  onClick={e => e.stopPropagation()}
-                >
-                  <h3 className="text-lg font-bold mb-1">Connect Wallet</h3>
-                  <p className="text-xs text-slate-400 mb-5">Choose how you want to connect to ShadowPass</p>
-
-                  {/* Lace Wallet Option */}
-                  <button
-                    onClick={handleConnectLace}
-                    className="w-full flex items-center gap-4 p-4 rounded-xl border border-cyan-500/20 bg-cyan-500/5 hover:bg-cyan-500/10 hover:border-cyan-500/40 transition-all mb-3 text-left"
-                  >
-                    <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center shrink-0">
-                      <KeyRound size={18} className="text-black" />
-                    </div>
-                    <div>
-                      <p className="font-semibold text-sm">Midnight Lace Wallet</p>
-                      <p className="text-xs text-slate-400">Connect via Lace browser extension</p>
-                    </div>
-                  </button>
-
-                  {/* Demo Mode Option */}
-                  <button
-                    onClick={handleDemoMode}
-                    className="w-full flex items-center gap-4 p-4 rounded-xl border border-emerald-500/20 bg-emerald-500/5 hover:bg-emerald-500/10 hover:border-emerald-500/40 transition-all text-left"
-                  >
-                    <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center shrink-0">
-                      <Zap size={18} className="text-black" />
-                    </div>
-                    <div>
-                      <p className="font-semibold text-sm">Demo Mode</p>
-                      <p className="text-xs text-slate-400">Try with pre-loaded simulator credentials</p>
-                    </div>
-                  </button>
-
-                  <button
-                    onClick={() => setShowWalletModal(false)}
-                    className="w-full mt-4 text-xs text-slate-500 hover:text-slate-300 transition-colors"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </div>
-            )}
           </div>
         </div>
       </header>
