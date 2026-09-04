@@ -66,38 +66,57 @@ activeContract.resetAccessStatus();
 
 let activeWalletAPI: MidnightWalletAPI | null = null;
 
+async function detectMidnightProvider(): Promise<{ provider: any; name: '1AM Wallet' | 'Midnight Lace' } | null> {
+  if (typeof window === 'undefined') return null;
+
+  for (let attempt = 0; attempt < 10; attempt++) {
+    const anyWin = window as any;
+    const midnight = anyWin.midnight;
+
+    if (midnight) {
+      if (midnight.oneAm && typeof midnight.oneAm.enable === 'function') {
+        return { provider: midnight.oneAm, name: '1AM Wallet' };
+      }
+      if (midnight.mnLace && typeof midnight.mnLace.enable === 'function') {
+        return { provider: midnight.mnLace, name: 'Midnight Lace' };
+      }
+      if (midnight['1am'] && typeof midnight['1am'].enable === 'function') {
+        return { provider: midnight['1am'], name: '1AM Wallet' };
+      }
+      for (const key of Object.keys(midnight)) {
+        if (midnight[key] && typeof midnight[key].enable === 'function') {
+          return { provider: midnight[key], name: key.toLowerCase().includes('lace') ? 'Midnight Lace' : '1AM Wallet' };
+        }
+      }
+    }
+
+    if (anyWin.oneAm && typeof anyWin.oneAm.enable === 'function') {
+      return { provider: anyWin.oneAm, name: '1AM Wallet' };
+    }
+    if (anyWin.oneam && typeof anyWin.oneam.enable === 'function') {
+      return { provider: anyWin.oneam, name: '1AM Wallet' };
+    }
+    if (anyWin.cardano?.midnight && typeof anyWin.cardano.midnight.enable === 'function') {
+      return { provider: anyWin.cardano.midnight, name: '1AM Wallet' };
+    }
+
+    // Wait 100ms before checking again (for extension injection)
+    await new Promise(res => setTimeout(res, 100));
+  }
+
+  return null;
+}
+
 /**
  * Connect to 1AM Wallet or Midnight Lace using official DApp Connector API
  */
 export async function connectLaceWallet(forceSandbox: boolean = false): Promise<WalletState> {
   if (typeof window !== 'undefined' && !forceSandbox) {
-    // Check 1: Check standard window.midnight injectors (1AM, Lace, etc.)
-    const midnightProviders = window.midnight;
-    let provider = null;
-    let detectedName: '1AM Wallet' | 'Midnight Lace' = '1AM Wallet';
+    const detected = await detectMidnightProvider();
 
-    if (midnightProviders) {
-      if (midnightProviders['oneAm']) {
-        provider = midnightProviders['oneAm'];
-        detectedName = '1AM Wallet';
-      } else if (midnightProviders['mnLace']) {
-        provider = midnightProviders['mnLace'];
-        detectedName = 'Midnight Lace';
-      } else {
-        const firstKey = Object.keys(midnightProviders)[0];
-        if (firstKey) {
-          provider = midnightProviders[firstKey];
-          detectedName = firstKey.toLowerCase().includes('lace') ? 'Midnight Lace' : '1AM Wallet';
-        }
-      }
-    } else if (window.oneAm) {
-      provider = window.oneAm;
-      detectedName = '1AM Wallet';
-    }
-
-    if (provider && typeof provider.enable === 'function') {
+    if (detected && detected.provider) {
       try {
-        const api = await provider.enable();
+        const api = await detected.provider.enable();
         activeWalletAPI = api;
         const address = await api.getPublicAddress();
         return {
@@ -105,7 +124,7 @@ export async function connectLaceWallet(forceSandbox: boolean = false): Promise<
           address: address,
           network: 'Midnight Preprod (setNetworkId("preprod"))',
           isLaceInstalled: true,
-          walletName: detectedName
+          walletName: detected.name
         };
       } catch (err: any) {
         console.warn('[Midnight DApp Connector] Wallet connection rejected or error:', err);
@@ -129,7 +148,7 @@ export async function connectLaceWallet(forceSandbox: boolean = false): Promise<
       network: 'Midnight Preprod',
       isLaceInstalled: false,
       walletName: 'Disconnected',
-      errorMessage: '1AM or Midnight Lace Wallet extension not detected in this browser window. Please ensure 1AM Wallet is installed and unlocked, or toggle Sandbox Mode.'
+      errorMessage: '1AM Wallet extension not detected yet. Make sure 1AM extension is pinned in your browser, or click "Demo Mode (Sandbox)" to test immediately.'
     };
   }
 
