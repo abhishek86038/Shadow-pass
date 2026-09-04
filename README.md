@@ -191,7 +191,7 @@ Here is the visual evidence showing the running GhostVault dApp UI, the local Vi
 ***🛡️ GhostVault / dApp UI ***
 ![alt text](image.png)
 ***🧪 Passing Unit & Integration Tests***
-![alt text](image-2.png)
+![alt text](image-4.png)
 ***💚 GitHub Actions CI/CD Run Status ***
 ![alt text](image-3.png)
 ---
