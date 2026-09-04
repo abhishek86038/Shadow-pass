@@ -111,7 +111,29 @@ async function detectMidnightProvider(): Promise<{ provider: any; name: '1AM Wal
  * Connect to 1AM Wallet or Midnight Lace using official DApp Connector API
  */
 export async function connectLaceWallet(forceSandbox: boolean = false): Promise<WalletState> {
-  if (typeof window !== 'undefined' && !forceSandbox) {
+  // In headless Node.js test environment
+  if (typeof window === 'undefined') {
+    if (!forceSandbox) {
+      return {
+        isConnected: false,
+        address: null,
+        network: 'Midnight Preprod',
+        isLaceInstalled: false,
+        walletName: 'Disconnected',
+        errorMessage: 'Midnight Lace Wallet extension not detected in test environment.'
+      };
+    }
+    return {
+      isConnected: true,
+      address: 'midnight1q_preprod_1am_sandbox_session_address',
+      network: 'Midnight Preprod (Sandbox Mode)',
+      isLaceInstalled: false,
+      walletName: 'Sandbox Mode'
+    };
+  }
+
+  // In browser environment
+  if (!forceSandbox) {
     const detected = await detectMidnightProvider();
 
     if (detected && detected.provider) {
@@ -140,7 +162,7 @@ export async function connectLaceWallet(forceSandbox: boolean = false): Promise<
     }
   }
 
-  // If browser blocks extension script injection on web domains, connect with 1AM Preprod session
+  // In browser fallback when extension script injection is isolated
   return {
     isConnected: true,
     address: 'midnight1q_preprod_1am_wallet_account_sync',
