@@ -23,6 +23,7 @@ import {
   submitZKMembershipProof, 
   adminAddMemberCommitment, 
   resetContractAccess,
+  deployContractOnPreprod,
   DEMO_MEMBER_1,
   WalletState 
 } from './contract-bindings';
@@ -52,6 +53,8 @@ export default function GhostVault() {
   const [newSecret, setNewSecret] = useState<string>('');
   const [newSalt, setNewSalt] = useState<string>('');
   const [adminMsg, setAdminMsg] = useState<string | null>(null);
+  const [isDeploying, setIsDeploying] = useState<boolean>(false);
+  const [deployedResult, setDeployedResult] = useState<{ contractAddress: string; txHash: string } | null>(null);
 
   const refreshLedger = () => {
     setLedger(getLedgerState());
@@ -130,6 +133,20 @@ export default function GhostVault() {
       refreshLedger();
     } catch (err: any) {
       setAdminMsg(`Error adding member: ${err.message}`);
+    }
+  };
+
+  const handleDeployContract = async () => {
+    setIsDeploying(true);
+    setDeployedResult(null);
+    try {
+      const res = await deployContractOnPreprod(wallet.address || undefined);
+      setDeployedResult(res);
+      refreshLedger();
+    } catch (err: any) {
+      alert(`Deployment failed: ${err.message}`);
+    } finally {
+      setIsDeploying(false);
     }
   };
 
@@ -572,6 +589,54 @@ export default function GhostVault() {
                     {adminMsg}
                   </div>
                 )}
+
+                {/* ON-CHAIN PREPROD DEPLOYMENT SECTION */}
+                <div className="pt-6 border-t border-white/[0.08] space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="text-sm font-bold text-cyan-400 flex items-center gap-2">
+                        <Zap size={16} /> Deploy Contract to Midnight Preprod
+                      </h3>
+                      <p className="text-[11px] text-slate-400">
+                        Deploy your Compact allowlist smart contract to Midnight Preprod with your 1AM wallet.
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleDeployContract}
+                      disabled={isDeploying}
+                      className="py-2.5 px-5 rounded-xl font-bold text-xs bg-cyan-500 hover:bg-cyan-400 text-black transition-all disabled:opacity-50 flex items-center gap-2"
+                    >
+                      {isDeploying ? (
+                        <>
+                          <RefreshCw size={14} className="animate-spin" />
+                          Deploying...
+                        </>
+                      ) : (
+                        <>
+                          <ShieldCheck size={14} />
+                          Deploy to Preprod
+                        </>
+                      )}
+                    </button>
+                  </div>
+
+                  {deployedResult && (
+                    <div className="p-4 rounded-2xl bg-cyan-950/40 border border-cyan-500/30 text-xs font-mono space-y-2">
+                      <p className="text-emerald-400 font-bold flex items-center gap-1.5">
+                        <CheckCircle2 size={14} /> Contract Deployed on Preprod!
+                      </p>
+                      <div className="text-slate-300">
+                        <span className="text-slate-500 block text-[10px] uppercase">Contract Address:</span>
+                        <code className="text-cyan-300 break-all">{deployedResult.contractAddress}</code>
+                      </div>
+                      <div className="text-slate-300">
+                        <span className="text-slate-500 block text-[10px] uppercase">Deployment Tx Hash:</span>
+                        <code className="text-emerald-300 break-all">{deployedResult.txHash}</code>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             </motion.div>
           )}

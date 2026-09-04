@@ -5,29 +5,31 @@ import {
   ProofResult,
   computeCommitment,
   MIDNIGHT_CONFIG,
-  findDeployedContract
+  findDeployedContract,
+  deployContract as sdkDeployContract
 } from '@shadow-pass/contract';
 
 // ============================================================================
-// Midnight DApp Connector API Window Interface Definition
+// Midnight DApp Connector API Window Interface Definition (1AM & Lace)
 // ============================================================================
-export interface MidnightLaceAPI {
+export interface MidnightWalletAPI {
   getUnspentProofs?: () => Promise<string[]>;
   submitTx: (txHex: string) => Promise<string>;
   getPublicAddress: () => Promise<string>;
-  getBalance?: () => Promise<{ tDUST: string }>;
+  getBalance?: () => Promise<{ tDUST: string; NIGHT?: string }>;
   getNetworkId?: () => Promise<string>;
 }
 
 declare global {
   interface Window {
-    midnight?: {
-      mnLace?: {
-        enable: () => Promise<MidnightLaceAPI>;
-        isEnabled: () => Promise<boolean>;
-        name?: string;
-        apiVersion?: string;
-      };
+    midnight?: Record<string, {
+      enable: () => Promise<MidnightWalletAPI>;
+      isEnabled?: () => Promise<boolean>;
+      name?: string;
+      apiVersion?: string;
+    }>;
+    oneAm?: {
+      enable: () => Promise<MidnightWalletAPI>;
     };
   }
 }
@@ -37,7 +39,7 @@ export interface WalletState {
   address: string | null;
   network: string;
   isLaceInstalled: boolean;
-  walletName: 'Midnight Lace' | 'Sandbox Mode' | 'Disconnected';
+  walletName: '1AM Wallet' | 'Midnight Lace' | 'Sandbox Mode' | 'Disconnected';
   errorMessage?: string;
 }
 
@@ -62,38 +64,64 @@ activeContract.registerMemberSecret(DEMO_MEMBER_1.secret, DEMO_MEMBER_1.salt);
 activeContract.registerMemberSecret(DEMO_MEMBER_2.secret, DEMO_MEMBER_2.salt);
 activeContract.resetAccessStatus();
 
-let activeLaceAPI: MidnightLaceAPI | null = null;
+let activeWalletAPI: MidnightWalletAPI | null = null;
 
 /**
- * Connect to Midnight Lace Wallet using the official DApp Connector API
+ * Connect to 1AM Wallet or Midnight Lace using official DApp Connector API
  */
 export async function connectLaceWallet(forceSandbox: boolean = false): Promise<WalletState> {
-  if (typeof window !== 'undefined' && window.midnight?.mnLace && !forceSandbox) {
-    try {
-      const api = await window.midnight.mnLace.enable();
-      activeLaceAPI = api;
-      const address = await api.getPublicAddress();
-      return {
-        isConnected: true,
-        address: address,
-        network: 'Midnight Preprod (setNetworkId("preprod"))',
-        isLaceInstalled: true,
-        walletName: 'Midnight Lace'
-      };
-    } catch (err: any) {
-      console.warn('[Midnight DApp Connector] Lace connection rejected or error:', err);
-      return {
-        isConnected: false,
-        address: null,
-        network: 'Midnight Preprod',
-        isLaceInstalled: true,
-        walletName: 'Disconnected',
-        errorMessage: err?.message || 'Lace connection rejected by user.'
-      };
+  if (typeof window !== 'undefined' && !forceSandbox) {
+    // Check 1: Check standard window.midnight injectors (1AM, Lace, etc.)
+    const midnightProviders = window.midnight;
+    let provider = null;
+    let detectedName: '1AM Wallet' | 'Midnight Lace' = '1AM Wallet';
+
+    if (midnightProviders) {
+      if (midnightProviders['oneAm']) {
+        provider = midnightProviders['oneAm'];
+        detectedName = '1AM Wallet';
+      } else if (midnightProviders['mnLace']) {
+        provider = midnightProviders['mnLace'];
+        detectedName = 'Midnight Lace';
+      } else {
+        const firstKey = Object.keys(midnightProviders)[0];
+        if (firstKey) {
+          provider = midnightProviders[firstKey];
+          detectedName = firstKey.toLowerCase().includes('lace') ? 'Midnight Lace' : '1AM Wallet';
+        }
+      }
+    } else if (window.oneAm) {
+      provider = window.oneAm;
+      detectedName = '1AM Wallet';
+    }
+
+    if (provider && typeof provider.enable === 'function') {
+      try {
+        const api = await provider.enable();
+        activeWalletAPI = api;
+        const address = await api.getPublicAddress();
+        return {
+          isConnected: true,
+          address: address,
+          network: 'Midnight Preprod (setNetworkId("preprod"))',
+          isLaceInstalled: true,
+          walletName: detectedName
+        };
+      } catch (err: any) {
+        console.warn('[Midnight DApp Connector] Wallet connection rejected or error:', err);
+        return {
+          isConnected: false,
+          address: null,
+          network: 'Midnight Preprod',
+          isLaceInstalled: true,
+          walletName: 'Disconnected',
+          errorMessage: err?.message || 'Wallet connection rejected by user.'
+        };
+      }
     }
   }
 
-  // If Lace extension is not found in browser window
+  // If Wallet extension is not found in browser window
   if (!forceSandbox) {
     return {
       isConnected: false,
@@ -101,14 +129,14 @@ export async function connectLaceWallet(forceSandbox: boolean = false): Promise<
       network: 'Midnight Preprod',
       isLaceInstalled: false,
       walletName: 'Disconnected',
-      errorMessage: 'Midnight Lace Wallet extension not detected. Please install Midnight Lace from Chrome Web Store or toggle Sandbox Mode.'
+      errorMessage: '1AM or Midnight Lace Wallet extension not detected in this browser window. Please ensure 1AM Wallet is installed and unlocked, or toggle Sandbox Mode.'
     };
   }
 
   // Sandbox Mode for offline testing / development
   return {
     isConnected: true,
-    address: 'midnight1q_preprod_devnet_sandbox_session_address',
+    address: 'midnight1q_preprod_1am_sandbox_session_address',
     network: 'Midnight Preprod (Sandbox Mode)',
     isLaceInstalled: false,
     walletName: 'Sandbox Mode'
@@ -120,6 +148,30 @@ export async function connectLaceWallet(forceSandbox: boolean = false): Promise<
  */
 export function getLedgerState(): PublicLedgerState {
   return activeContract.getPublicLedgerState();
+}
+
+/**
+ * Deploy contract on Preprod with connected wallet
+ */
+export async function deployContractOnPreprod(adminPubKey?: string): Promise<{ contractAddress: string; txHash: string }> {
+  const admin = adminPubKey || (await activeWalletAPI?.getPublicAddress()) || adminAddress;
+  const deployment = await sdkDeployContract(admin, 8);
+  
+  let txHash = deployment.txHash;
+  if (activeWalletAPI) {
+    try {
+      const submitted = await activeWalletAPI.submitTx(deployment.txHash);
+      if (submitted) txHash = submitted;
+    } catch (e) {
+      console.warn('[Midnight Deployment] submitTx warning:', e);
+    }
+  }
+
+  activeContract.contractAddress = deployment.deployedAddress;
+  return {
+    contractAddress: deployment.deployedAddress,
+    txHash
+  };
 }
 
 /**
@@ -188,15 +240,15 @@ export async function submitZKMembershipProof(secretKey: string, blindingSalt: s
   // Invoke Midnight.js contract callTx interface
   const proofResult = await activeContract.callTx.proveMembership(witnesses);
 
-  // If connected via real Lace wallet, submit transaction through Lace API
-  if (activeLaceAPI && proofResult.success && proofResult.txHash) {
+  // If connected via real 1AM / Lace wallet, submit transaction through Wallet API
+  if (activeWalletAPI && proofResult.success && proofResult.txHash) {
     try {
-      const submittedHash = await activeLaceAPI.submitTx(proofResult.txHash);
+      const submittedHash = await activeWalletAPI.submitTx(proofResult.txHash);
       if (submittedHash) {
         proofResult.txHash = submittedHash;
       }
     } catch (txErr) {
-      console.warn('[Midnight Lace] Transaction submission through Lace wallet failed:', txErr);
+      console.warn('[Midnight Wallet] Transaction submission failed:', txErr);
     }
   }
 
