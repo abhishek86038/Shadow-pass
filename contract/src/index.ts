@@ -9,7 +9,7 @@ export const MIDNIGHT_CONFIG = {
   indexerWsUri: 'wss://indexer.preprod.midnight.network/api/v1/graphql/ws',
   nodeRpcUri: 'https://rpc.preprod.midnight.network',
   proofServerUri: 'http://127.0.0.1:6300',
-  defaultContractAddress: '010000e7b8a1c93a4b6c8d7e0f21db59d8c47b59e521a04fd904328bf612de07'
+  defaultContractAddress: '016cf1671e15625d75558638113accaf63052050c088e1d3afbb93afdcc72d94'
 };
 
 // ============================================================================

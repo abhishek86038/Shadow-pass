@@ -10,6 +10,7 @@
     "dev:indexer": "npm run dev --prefix indexer",
     "test": "vitest run",
     "test:watch": "vitest",
+    "deploy:preprod": "npx tsx scripts/deploy-preprod.ts",
     "build": "npm install --prefix contract && npm run build --prefix contract && npm install --prefix indexer && npm run build --prefix indexer && npm install --prefix frontend && npm run build --prefix frontend"
   },
   "devDependencies": {

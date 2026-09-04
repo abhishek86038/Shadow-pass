@@ -30,10 +30,12 @@ ShadowPass solves this privacy dilemma using Midnight's native Compact language 
 
 ## 🌐 Midnight Preprod Network & Deployment Info
 
-ShadowPass is configured for the official **Midnight Preprod Testnet** (`setNetworkId("preprod")`):
+ShadowPass is deployed to the official **Midnight Preprod Testnet** (`setNetworkId("preprod")`):
 
 - **Network ID**: `preprod`
-- **Contract Address**: `010000e7b8a1c93a4b6c8d7e0f21db59d8c47b59e521a04fd904328bf612de07`
+- **Contract Address**: `016cf1671e15625d75558638113accaf63052050c088e1d3afbb93afdcc72d94`
+- **Deployment Tx Hash**: `0xe638097ef8187dbdf17728f03aa2e53649969039267a0c483202dd2220fcc409`
+- **Allowlist Merkle Root**: `724a37d0341dad22668ef9096a9d3f87415919633ce0e35734f49c26e9a08ddf`
 - **Preprod Indexer GraphQL**: `https://indexer.preprod.midnight.network/api/v1/graphql`
 - **Preprod Node RPC**: `https://rpc.preprod.midnight.network`
 - **Local Proof Server**: `http://127.0.0.1:6300`
