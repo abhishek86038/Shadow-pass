@@ -24,6 +24,14 @@ ShadowPass solves this privacy dilemma using Midnight's native Compact language 
 
 ---
 
+## 🌐 Contract Address & Deployment Info
+The smart contract has been deployed to the Midnight Preprod Network.
+
+- **Network Label**: Midnight Preprod Testnet
+- **Contract Address**: `010000e7b8a1c93a4b6c8d7e0f21db59d8c47b59e521a04fd904328bf612de07`
+
+---
+
 ## 4. Architecture
 
 ```
@@ -156,9 +164,9 @@ npm test
 ```
 
 ### Test Suite Coverage & Verification
-- **[tests/allowlist.test.ts](file:///c:/Users/raita/OneDrive/Documents/Desktop/ShadowPass/tests/allowlist.test.ts) (4 tests):** Verifies valid ZK membership proof execution, rejection of non-member secrets, zero identity leakage in public state JSON, and admin Merkle root updates.
-- **[tests/frontend.test.ts](file:///c:/Users/raita/OneDrive/Documents/Desktop/ShadowPass/tests/frontend.test.ts) (2 tests):** Verifies Lace Wallet binding initialization and end-to-end frontend ZK proof submission flow.
-- **[tests/indexer.test.ts](file:///c:/Users/raita/OneDrive/Documents/Desktop/ShadowPass/tests/indexer.test.ts) (1 test):** Verifies backend event indexer state synchronization and event logging.
+- **[contract/src/allowlist.test.ts](file:///c:/Users/raita/OneDrive/Documents/Desktop/ShadowPass/contract/src/allowlist.test.ts)** (mirrored at `tests/allowlist.test.ts` - 4 tests): Verifies valid ZK membership proof execution, rejection of non-member secrets, zero identity leakage in public state JSON, and admin Merkle root updates.
+- **[frontend/src/frontend.test.ts](file:///c:/Users/raita/OneDrive/Documents/Desktop/ShadowPass/frontend/src/frontend.test.ts)** (mirrored at `tests/frontend.test.ts` - 2 tests): Verifies Lace Wallet binding initialization and end-to-end frontend ZK proof submission flow.
+- **[indexer/src/indexer.test.ts](file:///c:/Users/raita/OneDrive/Documents/Desktop/ShadowPass/indexer/src/indexer.test.ts)** (mirrored at `tests/indexer.test.ts` - 1 test): Verifies backend event indexer state synchronization and event logging.
 
 ---
 
@@ -190,7 +198,7 @@ Here is the visual evidence showing the running GhostVault dApp UI, the local Vi
 
 ## 11. Live Demo
 
-🔗 Live demo: [shadowpass-moon-level3-green.vercel.app](https://shadowpass-moon-level3-green.vercel.app/)
+🔗 Live demo: [shadowpass-moon-level3-okq1.vercel.app](https://shadowpass-moon-level3-okq1.vercel.app/)
 
 ---
 

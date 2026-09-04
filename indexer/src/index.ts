@@ -61,7 +61,7 @@ app.get('/api/status', (req: Request, res: Response) => {
   syncIndexerEvents();
   const state = indexedContract.getPublicLedgerState();
   res.json({
-    contractAddress: 'midnight1contract_shadowpass_allowlist_v1',
+    contractAddress: '010000e7b8a1c93a4b6c8d7e0f21db59d8c47b59e521a04fd904328bf612de07',
     accessGranted: state.accessGranted,
     allowlistRoot: state.allowlistRoot,
     registeredCount: state.registeredCount,
