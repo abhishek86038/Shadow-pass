@@ -1,8 +1,11 @@
 # ShadowPass — Zero-Knowledge Private Allowlist Access dApp
 
 [![ShadowPass CI/CD Pipeline](https://github.com/abhishek86038/Shadow-pass/actions/workflows/ci.yml/badge.svg)](https://github.com/abhishek86038/Shadow-pass/actions/workflows/ci.yml)
-[![License: MIT](https://img.shields.io/badge/License-MIT-purple.svg)](LICENSE)
 [![Midnight Blockchain](https://img.shields.io/badge/Blockchain-Midnight_Preprod-06b6d4.svg)](https://midnight.network)
+[![X Profile](https://img.shields.io/badge/X-@ShadowPasses-black?logo=x&logoColor=white)](https://x.com/ShadowPasses)
+[![License: MIT](https://img.shields.io/badge/License-MIT-purple.svg)](LICENSE)
+
+Live Demo: [https://shadow-pass-e28i.vercel.app/](https://shadow-pass-e28i.vercel.app/) | 🐦 **Product X Profile**: [https://x.com/ShadowPasses](https://x.com/ShadowPasses) | 🎬 **Demo Video**: [Watch Demo Video](https://photos.app.goo.gl/UPcnamPqq9xaidDWA)
 
 ---
 
@@ -239,9 +242,12 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 15. Repository & Project Details
 
+- **Product X (Twitter)**: [https://x.com/ShadowPasses](https://x.com/ShadowPasses)
 - **GitHub Repository**: [https://github.com/abhishek86038/Shadow-pass](https://github.com/abhishek86038/Shadow-pass)
 - **Primary Branch**: `main`
 - **Author / Maintainer**: `abhishek86038`
 - **Live dApp URL**: [https://shadow-pass-e28i.vercel.app/](https://shadow-pass-e28i.vercel.app/)
 - **Demo Video**: [https://photos.app.goo.gl/UPcnamPqq9xaidDWA](https://photos.app.goo.gl/UPcnamPqq9xaidDWA)
+- **Hackathon Level**: Midnight Hackathon Level 4 (Full Moon)
+
 
