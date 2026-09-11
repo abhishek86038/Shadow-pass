@@ -201,7 +201,7 @@ Here is the visual evidence showing the running GhostVault dApp UI, the local Vi
 
 ## 11. Live Demo
 
-🔗 Live demo: [shadow-pass.vercel.app](https://shadow-pass.vercel.app/)
+🔗 Live demo: [shadow-pass-e28i.vercel.app](https://shadow-pass-e28i.vercel.app/)
 
 ---
 
@@ -242,6 +242,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **GitHub Repository**: [https://github.com/abhishek86038/Shadow-pass](https://github.com/abhishek86038/Shadow-pass)
 - **Primary Branch**: `main`
 - **Author / Maintainer**: `abhishek86038`
-- **Live dApp URL**: [https://shadow-pass.vercel.app/](https://shadow-pass.vercel.app/)
+- **Live dApp URL**: [https://shadow-pass-e28i.vercel.app/](https://shadow-pass-e28i.vercel.app/)
 - **Demo Video**: [https://photos.app.goo.gl/UPcnamPqq9xaidDWA](https://photos.app.goo.gl/UPcnamPqq9xaidDWA)
 
