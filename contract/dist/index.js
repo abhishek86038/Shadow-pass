@@ -8,7 +8,7 @@ export const MIDNIGHT_CONFIG = {
     indexerWsUri: 'wss://indexer.preprod.midnight.network/api/v1/graphql/ws',
     nodeRpcUri: 'https://rpc.preprod.midnight.network',
     proofServerUri: 'http://127.0.0.1:6300',
-    defaultContractAddress: '016cf1671e15625d75558638113accaf63052050c088e1d3afbb93afdcc72d94'
+    defaultContractAddress: 'f58d3e681578fff354e5391111b384f5dca9f39c9d567bdcf9fff84727ae8f56'
 };
 // ============================================================================
 // Cryptographic Utility (Isomorphic SHA-256 Compact-Compatible)
