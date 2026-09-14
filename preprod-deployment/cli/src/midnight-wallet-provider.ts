@@ -138,7 +138,19 @@ export class MidnightWalletProvider implements MidnightProvider, WalletProvider 
       },
     };
 
-    const seeds = seed ? WalletSeeds.fromMasterSeed(seed) : WalletSeeds.generateRandom();
+    let masterSeed = seed?.trim();
+    if (masterSeed && masterSeed.includes(' ')) {
+      try {
+        const { mnemonicToEntropy } = await import('@scure/bip39');
+        const { wordlist } = await import('@scure/bip39/wordlists/english.js');
+        const entropy = mnemonicToEntropy(masterSeed, wordlist);
+        masterSeed = Buffer.from(entropy).toString('hex');
+      } catch (err: any) {
+        logger.warn(`Could not parse seed as BIP39 mnemonic: ${err.message}`);
+      }
+    }
+
+    const seeds = masterSeed ? WalletSeeds.fromMasterSeed(masterSeed) : WalletSeeds.generateRandom();
     const keystore = createKeystore(seeds.unshielded, env.walletNetworkId as any);
 
     const unshieldedWallet = WalletFactory.createUnshieldedWallet(walletConfig as any, keystore);
