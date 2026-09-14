@@ -1,0 +1,9 @@
+{
+  "network": "preprod",
+  "contractAddress": "f58d3e681578fff354e5391111b384f5dca9f39c9d567bdcf9fff84727ae8f56",
+  "explorerUrl": "https://preprod.midnight.network/contract/f58d3e681578fff354e5391111b384f5dca9f39c9d567bdcf9fff84727ae8f56",
+  "indexer": "https://indexer.preprod.midnight.network/api/v4/graphql",
+  "node": "https://rpc.preprod.midnight.network",
+  "deployedAt": "2026-09-14T13:03:31.950Z",
+  "githubActionsRun": "https://github.com/abhishek86038/Shadow-pass/actions/runs/34842858470"
+}

@@ -36,12 +36,11 @@ ShadowPass solves this privacy dilemma using Midnight's native Compact language 
 ShadowPass is deployed to the official **Midnight Preprod Testnet** (`setNetworkId("preprod")`):
 
 - **Network ID**: `preprod`
-- **Contract Address**: `016cf1671e15625d75558638113accaf63052050c088e1d3afbb93afdcc72d94`
-- **Deployment Tx Hash**: `0xe638097ef8187dbdf17728f03aa2e53649969039267a0c483202dd2220fcc409`
-- **Allowlist Merkle Root**: `724a37d0341dad22668ef9096a9d3f87415919633ce0e35734f49c26e9a08ddf`
-- **Preprod Indexer GraphQL**: `https://indexer.preprod.midnight.network/api/v1/graphql`
+- **Contract Address**: `f58d3e681578fff354e5391111b384f5dca9f39c9d567bdcf9fff84727ae8f56`
+- **Midnight Preprod Explorer**: [https://preprod.midnight.network/contract/f58d3e681578fff354e5391111b384f5dca9f39c9d567bdcf9fff84727ae8f56](https://preprod.midnight.network/contract/f58d3e681578fff354e5391111b384f5dca9f39c9d567bdcf9fff84727ae8f56)
+- **Preprod Indexer GraphQL**: `https://indexer.preprod.midnight.network/api/v4/graphql`
 - **Preprod Node RPC**: `https://rpc.preprod.midnight.network`
-- **Local Proof Server**: `http://127.0.0.1:6300`
+- **CI/CD Deployment Action**: [Deploy to Preprod #34842858470](https://github.com/abhishek86038/Shadow-pass/actions/runs/34842858470)
 
 ---
 
