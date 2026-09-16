@@ -37,7 +37,7 @@ ShadowPass is deployed to the official **Midnight Preprod Testnet** (`setNetwork
 
 - **Network ID**: `preprod`
 - **Contract Address**: `f58d3e681578fff354e5391111b384f5dca9f39c9d567bdcf9fff84727ae8f56`
-- **Midnight Preprod Explorer**: [https://preprod.midnight.network/contract/f58d3e681578fff354e5391111b384f5dca9f39c9d567bdcf9fff84727ae8f56][(https://preprod.midnight.network/contract/f58d3e681578fff354e5391111b384f5dca9f39c9d567bdcf9fff84727ae8f56)](https://preprod.midnightexplorer.com/contracts/0xf58d3e681578fff354e5391111b384f5dca9f39c9d567bdcf9fff84727ae8f56)
+- **Midnight Preprod Explorer**: [https://preprod.midnight.network/contract/f58d3e681578fff354e5391111b384f5dca9f39c9d567bdcf9fff84727ae8f56](https://preprod.midnightexplorer.com/contracts/0xf58d3e681578fff354e5391111b384f5dca9f39c9d567bdcf9fff84727ae8f56)
 - **Preprod Indexer GraphQL**: `https://indexer.preprod.midnight.network/api/v4/graphql`
 - **Preprod Node RPC**: `https://rpc.preprod.midnight.network`
 - **CI/CD Deployment Action**: [Deploy to Preprod #34842858470](https://github.com/abhishek86038/Shadow-pass/actions/runs/34842858470)
