@@ -1,11 +1,15 @@
 # ShadowPass — Zero-Knowledge Private Allowlist Access dApp
 
 [![ShadowPass CI/CD Pipeline](https://github.com/abhishek86038/Shadow-pass/actions/workflows/ci.yml/badge.svg)](https://github.com/abhishek86038/Shadow-pass/actions/workflows/ci.yml)
-[![Midnight Network: Preprod](https://img.shields.io/badge/Midnight-Preprod-22c55e?logo=midnight&logoColor=white)](https://preprod.midnightexplorer.com/)
+[![Midnight Network: Preprod](https://img.shields.io/badge/Midnight-Preprod-22c55e?logo=midnight&logoColor=white)](https://preprod.midnightexplorer.com/contracts/0xf58d3e681578fff354e5391111b384f5dca9f39c9d567bdcf9fff84727ae8f56)
+[![GitHub Repository](https://img.shields.io/badge/GitHub-abhishek86038%2FShadow--pass-blue?logo=github)](https://github.com/abhishek86038/Shadow-pass)
 [![X Profile](https://img.shields.io/badge/X-@ShadowPasses-black?logo=x&logoColor=white)](https://x.com/ShadowPasses)
 [![License: MIT](https://img.shields.io/badge/License-MIT-purple.svg)](LICENSE)
 
-Live Demo: [https://shadow-pass-e28i.vercel.app/](https://shadow-pass-e28i.vercel.app/) | 🔍 **Midnight Explorer**: [https://preprod.midnightexplorer.com/](https://preprod.midnightexplorer.com/) | 🐦 **Product X Profile**: [https://x.com/ShadowPasses](https://x.com/ShadowPasses) | 🎬 **Demo Video**: [Watch Demo Video](https://photos.app.goo.gl/UPcnamPqq9xaidDWA)
+📦 **GitHub Repository**: [https://github.com/abhishek86038/Shadow-pass](https://github.com/abhishek86038/Shadow-pass)  
+🌐 **Live Demo**: [https://shadow-pass-e28i.vercel.app/](https://shadow-pass-e28i.vercel.app/)  
+🔍 **Midnight Explorer (Contract)**: [https://preprod.midnightexplorer.com/contracts/0xf58d3e681578fff354e5391111b384f5dca9f39c9d567bdcf9fff84727ae8f56](https://preprod.midnightexplorer.com/contracts/0xf58d3e681578fff354e5391111b384f5dca9f39c9d567bdcf9fff84727ae8f56)  
+🐦 **Product X Profile**: [https://x.com/ShadowPasses](https://x.com/ShadowPasses) | 🎬 **Demo Video**: [Watch Demo Video](https://photos.app.goo.gl/UPcnamPqq9xaidDWA)
 
 ---
 
