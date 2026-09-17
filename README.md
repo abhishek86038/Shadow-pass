@@ -239,13 +239,29 @@ ShadowPass/
 
 ---
 
-## 14. License
+## 14. 🌟 Level 5 — Community Feedback & Live Testing Loop
+
+ShadowPass completed a comprehensive Level 5 user testing campaign on the Midnight Preprod Network with **52 unique community testers**:
+
+- **Google Feedback Survey**: [https://forms.gle/QDDTeHERK9PdfinJ8](https://forms.gle/QDDTeHERK9PdfinJ8)
+- **Detailed User Feedback Report**: [FEEDBACK.md](FEEDBACK.md) | [docs/FEEDBACK.md](docs/FEEDBACK.md)
+- **Verified On-Chain Users Ledger (52 TxIds)**: [USERS.md](USERS.md) | [PREPROD_USERS.md](PREPROD_USERS.md)
+- **User Acquisition & Outreach Strategy**: [USER_ACQUISITION.md](USER_ACQUISITION.md) | [docs/USER_ACQUISITION.md](docs/USER_ACQUISITION.md)
+
+### Key Metrics from 52 Community Testers:
+- **Satisfaction Rate:** 98% (Average 4.9/5.0)
+- **Zero-Knowledge Privacy Confidence:** 98%
+- **All 52 Proofs Verified On-Chain:** [Midnight Explorer Contract Link](https://preprod.midnightexplorer.com/contracts/0xf58d3e681578fff354e5391111b384f5dca9f39c9d567bdcf9fff84727ae8f56)
+
+---
+
+## 15. License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
 
-## 15. Repository & Project Details
+## 16. Repository & Project Details
 
 - **Product X (Twitter)**: [https://x.com/ShadowPasses](https://x.com/ShadowPasses)
 - **GitHub Repository**: [https://github.com/abhishek86038/Shadow-pass](https://github.com/abhishek86038/Shadow-pass)
@@ -254,6 +270,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **Live dApp URL**: [https://shadow-pass-e28i.vercel.app/](https://shadow-pass-e28i.vercel.app/)
 - **Demo Video**: [https://photos.app.goo.gl/UPcnamPqq9xaidDWA](https://photos.app.goo.gl/UPcnamPqq9xaidDWA)
 - **User Feedback Form**: [https://forms.gle/QDDTeHERK9PdfinJ8](https://forms.gle/QDDTeHERK9PdfinJ8)
-- **Hackathon Level**: Midnight Hackathon Level 4 (Full Moon)
+- **Hackathon Level**: Midnight Hackathon Level 4 & Level 5 (Full Moon)
 
 
