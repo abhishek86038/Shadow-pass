@@ -1,299 +1,326 @@
-import {
-  AllowlistContract,
-  PublicLedgerState,
-  PrivateWitnesses,
-  ProofResult,
-  computeCommitment,
-  MIDNIGHT_CONFIG,
-  findDeployedContract,
-  deployContract as sdkDeployContract
-} from '@shadow-pass/contract';
+export interface InitialAPI {
+  apiVersion?: string;
+  name?: string;
+  icon?: string;
+  connect: (networkId: string) => Promise<ConnectedAPI>;
+  isEnabled?: () => Promise<boolean>;
+}
 
-// ============================================================================
-// Midnight DApp Connector API Window Interface Definition (1AM & Lace)
-// ============================================================================
-export interface MidnightWalletAPI {
-  getUnspentProofs?: () => Promise<string[]>;
-  submitTx: (txHex: string) => Promise<string>;
-  getPublicAddress: () => Promise<string>;
-  getBalance?: () => Promise<{ tDUST: string; NIGHT?: string }>;
-  getNetworkId?: () => Promise<string>;
+export interface ConnectedAPI {
+  getConnectionStatus: () => Promise<{ isConnected: boolean }>;
+  getShieldedAddresses: () => Promise<{
+    shieldedCoinPublicKey: string;
+    shieldedEncryptionPublicKey: string;
+  }>;
+  getConfiguration: () => Promise<{
+    indexerUri?: string;
+    indexerWsUri?: string;
+    proverServerUri?: string;
+  }>;
+  balanceUnsealedTransaction: (txPayloadHex: string) => Promise<{ tx: string }>;
+  submitTransaction: (txHex: string) => Promise<string>;
 }
 
 declare global {
   interface Window {
-    midnight?: Record<string, {
-      enable: () => Promise<MidnightWalletAPI>;
-      isEnabled?: () => Promise<boolean>;
-      name?: string;
-      apiVersion?: string;
-    }>;
-    oneAm?: {
-      enable: () => Promise<MidnightWalletAPI>;
-    };
+    midnight?: Record<string, InitialAPI>;
+    oneAm?: InitialAPI;
   }
 }
 
-export interface WalletState {
-  isConnected: boolean;
-  address: string | null;
-  network: string;
-  isLaceInstalled: boolean;
-  walletName: '1AM Wallet' | 'Midnight Lace' | 'Sandbox Mode' | 'Disconnected';
-  errorMessage?: string;
-}
+import {
+  MIDNIGHT_CONFIG,
+  PublicLedgerState,
+  ShadowPassPrivateState,
+  createShadowPassPrivateState,
+  computeLeafCommitment,
+  computeNullifier,
+  bytesToHex,
+  hexToBytes,
+} from '../../contract/src/index.js';
 
-// ============================================================================
-// Preprod Deployed Contract Instance
-// ============================================================================
-const adminAddress = '0xadmin_pubkey_11223344556677889900aabbccddeeff11223344556677889900aabb';
-export const activeContract = new AllowlistContract(adminAddress, 8, MIDNIGHT_CONFIG.defaultContractAddress);
-
-// Pre-registered demo member commitments for instant Preprod testing
-export const DEMO_MEMBER_1 = {
-  secret: 'a1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e5f60718293a4b5c6d7e8f90',
-  salt: '1111111111111111111111111111111111111111111111111111111111111111'
+export {
+  MIDNIGHT_CONFIG,
+  type PublicLedgerState,
+  type ShadowPassPrivateState,
+  createShadowPassPrivateState,
+  computeLeafCommitment,
+  computeNullifier,
+  bytesToHex,
+  hexToBytes,
 };
 
-export const DEMO_MEMBER_2 = {
-  secret: 'f9e8d7c6b5a4039281726151413121110f9e8d7c6b5a40392817261514131211',
-  salt: '2222222222222222222222222222222222222222222222222222222222222222'
-};
+// ============================================================================
+// Secure Browser Private State Persistence Provider
+// ============================================================================
+export class SecureStoragePrivateStateProvider {
+  private readonly storageKey: string;
 
-activeContract.registerMemberSecret(DEMO_MEMBER_1.secret, DEMO_MEMBER_1.salt);
-activeContract.registerMemberSecret(DEMO_MEMBER_2.secret, DEMO_MEMBER_2.salt);
-activeContract.resetAccessStatus();
-
-let activeWalletAPI: MidnightWalletAPI | null = null;
-
-async function detectMidnightProvider(): Promise<{ provider: any; name: '1AM Wallet' | 'Midnight Lace' } | null> {
-  if (typeof window === 'undefined') return null;
-
-  for (let attempt = 0; attempt < 10; attempt++) {
-    const anyWin = window as any;
-    const midnight = anyWin.midnight;
-
-    if (midnight) {
-      if (midnight.oneAm && typeof midnight.oneAm.enable === 'function') {
-        return { provider: midnight.oneAm, name: '1AM Wallet' };
-      }
-      if (midnight.mnLace && typeof midnight.mnLace.enable === 'function') {
-        return { provider: midnight.mnLace, name: 'Midnight Lace' };
-      }
-      if (midnight['1am'] && typeof midnight['1am'].enable === 'function') {
-        return { provider: midnight['1am'], name: '1AM Wallet' };
-      }
-      for (const key of Object.keys(midnight)) {
-        if (midnight[key] && typeof midnight[key].enable === 'function') {
-          return { provider: midnight[key], name: key.toLowerCase().includes('lace') ? 'Midnight Lace' : '1AM Wallet' };
-        }
-      }
-    }
-
-    if (anyWin.oneAm && typeof anyWin.oneAm.enable === 'function') {
-      return { provider: anyWin.oneAm, name: '1AM Wallet' };
-    }
-    if (anyWin.oneam && typeof anyWin.oneam.enable === 'function') {
-      return { provider: anyWin.oneam, name: '1AM Wallet' };
-    }
-    if (anyWin.cardano?.midnight && typeof anyWin.cardano.midnight.enable === 'function') {
-      return { provider: anyWin.cardano.midnight, name: '1AM Wallet' };
-    }
-
-    // Wait 100ms before checking again (for extension injection)
-    await new Promise(res => setTimeout(res, 100));
+  constructor(contractAddress: string = MIDNIGHT_CONFIG.defaultContractAddress) {
+    this.storageKey = `midnight_shadowpass_state_${contractAddress}`;
   }
 
-  return null;
-}
-
-/**
- * Connect to 1AM Wallet or Midnight Lace using official DApp Connector API
- */
-export async function connectLaceWallet(forceSandbox: boolean = false): Promise<WalletState> {
-  // In headless Node.js test environment
-  if (typeof window === 'undefined') {
-    if (!forceSandbox) {
-      return {
-        isConnected: false,
-        address: null,
-        network: 'Midnight Preprod',
-        isLaceInstalled: false,
-        walletName: 'Disconnected',
-        errorMessage: 'Midnight Lace Wallet extension not detected in test environment.'
-      };
-    }
-    return {
-      isConnected: true,
-      address: 'midnight1q_preprod_1am_sandbox_session_address',
-      network: 'Midnight Preprod (Sandbox Mode)',
-      isLaceInstalled: false,
-      walletName: 'Sandbox Mode'
-    };
-  }
-
-  // In browser environment
-  if (!forceSandbox) {
-    const detected = await detectMidnightProvider();
-
-    if (detected && detected.provider) {
-      try {
-        const api = await detected.provider.enable();
-        activeWalletAPI = api;
-        const address = await api.getPublicAddress();
-        return {
-          isConnected: true,
-          address: address,
-          network: 'Midnight Preprod (setNetworkId("preprod"))',
-          isLaceInstalled: true,
-          walletName: detected.name
-        };
-      } catch (err: any) {
-        console.warn('[Midnight DApp Connector] Wallet connection rejected or error:', err);
-        return {
-          isConnected: false,
-          address: null,
-          network: 'Midnight Preprod',
-          isLaceInstalled: true,
-          walletName: 'Disconnected',
-          errorMessage: err?.message || 'Wallet connection rejected by user.'
-        };
-      }
-    }
-  }
-
-  // In browser fallback when extension script injection is isolated
-  return {
-    isConnected: true,
-    address: 'midnight1q_preprod_1am_wallet_account_sync',
-    network: 'Midnight Preprod (1AM Connected)',
-    isLaceInstalled: true,
-    walletName: '1AM Wallet'
-  };
-}
-
-/**
- * Fetch current public ledger state from contract
- */
-export function getLedgerState(): PublicLedgerState {
-  return activeContract.getPublicLedgerState();
-}
-
-/**
- * Deploy contract on Preprod with connected wallet
- */
-export async function deployContractOnPreprod(adminPubKey?: string): Promise<{ contractAddress: string; txHash: string }> {
-  const admin = adminPubKey || (await activeWalletAPI?.getPublicAddress()) || adminAddress;
-  const deployment = await sdkDeployContract(admin, 8);
-  
-  let txHash = deployment.txHash;
-  if (activeWalletAPI) {
+  public getPrivateState(): ShadowPassPrivateState | null {
+    if (typeof window === 'undefined' || !window.localStorage) return null;
     try {
-      const submitted = await activeWalletAPI.submitTx(deployment.txHash);
-      if (submitted) txHash = submitted;
-    } catch (e) {
-      console.warn('[Midnight Deployment] submitTx warning:', e);
+      const raw = window.localStorage.getItem(this.storageKey);
+      if (!raw) return null;
+      const parsed = JSON.parse(raw);
+      return {
+        secretKey: hexToBytes(parsed.secretKey),
+        merklePath: (parsed.merklePath || []).map((h: string) => hexToBytes(h)) as any,
+        pathDirections: parsed.pathDirections || [false, false, false, false, false],
+      };
+    } catch {
+      return null;
     }
   }
 
-  activeContract.contractAddress = deployment.deployedAddress;
+  public savePrivateState(state: ShadowPassPrivateState): void {
+    if (typeof window === 'undefined' || !window.localStorage) return;
+    const serializable = {
+      secretKey: bytesToHex(state.secretKey),
+      merklePath: state.merklePath.map((b) => bytesToHex(b)),
+      pathDirections: state.pathDirections,
+      updatedAt: new Date().toISOString(),
+    };
+    window.localStorage.setItem(this.storageKey, JSON.stringify(serializable));
+  }
+
+  public clear(): void {
+    if (typeof window === 'undefined' || !window.localStorage) return;
+    window.localStorage.removeItem(this.storageKey);
+  }
+}
+
+// ============================================================================
+// Official DApp Connector Wallet Client (1AM / Lace)
+// ============================================================================
+
+export interface ConnectedWalletSession {
+  walletName: string;
+  coinPublicKey: string;
+  encryptionPublicKey: string;
+  networkId: string;
+  connectedAPI: ConnectedAPI;
+}
+
+export async function detectMidnightWallets(): Promise<{
+  hasOneAm: boolean;
+  hasLace: boolean;
+  wallets: string[];
+}> {
+  if (typeof window === 'undefined') {
+    return { hasOneAm: false, hasLace: false, wallets: [] };
+  }
+
+  const wallets: string[] = [];
+  let hasOneAm = false;
+  let hasLace = false;
+
+  if (window.midnight && typeof window.midnight === 'object') {
+    for (const [key, api] of Object.entries(window.midnight)) {
+      if (api && typeof api === 'object') {
+        wallets.push(key);
+        if (key.toLowerCase().includes('1am') || key.toLowerCase().includes('oneam')) hasOneAm = true;
+        if (key.toLowerCase().includes('lace')) hasLace = true;
+      }
+    }
+  }
+
+  if (window.oneAm) {
+    hasOneAm = true;
+    if (!wallets.includes('1am')) wallets.push('1am');
+  }
+
+  return { hasOneAm, hasLace, wallets };
+}
+
+export async function connectDAppWallet(
+  preferredWallet: '1AM' | 'Lace' | 'any' = 'any'
+): Promise<ConnectedWalletSession> {
+  if (typeof window === 'undefined') {
+    throw new Error('DApp connector can only run in a browser environment');
+  }
+
+  // Poll for extension injection up to 3 seconds
+  let initialAPI: InitialAPI | undefined;
+  let resolvedWalletName = 'Midnight Wallet';
+
+  const startTime = Date.now();
+  while (Date.now() - startTime < 3000) {
+    if (window.midnight && typeof window.midnight === 'object') {
+      const entries = Object.entries(window.midnight);
+      if (preferredWallet === '1AM') {
+        const found = entries.find(([k]) => k.toLowerCase().includes('1am') || k.toLowerCase().includes('oneam'));
+        if (found) {
+          initialAPI = found[1] as InitialAPI;
+          resolvedWalletName = '1AM Wallet';
+          break;
+        }
+      } else if (preferredWallet === 'Lace') {
+        const found = entries.find(([k]) => k.toLowerCase().includes('lace') || k.toLowerCase().includes('midnight'));
+        if (found) {
+          initialAPI = found[1] as InitialAPI;
+          resolvedWalletName = 'Lace Wallet';
+          break;
+        }
+      } else if (entries.length > 0) {
+        initialAPI = entries[0][1] as InitialAPI;
+        resolvedWalletName = entries[0][0];
+        break;
+      }
+    }
+
+    if (preferredWallet === '1AM' && window.oneAm) {
+      initialAPI = window.oneAm as unknown as InitialAPI;
+      resolvedWalletName = '1AM Wallet';
+      break;
+    }
+
+    await new Promise((r) => setTimeout(r, 200));
+  }
+
+  if (!initialAPI) {
+    throw new Error(
+      `No compatible Midnight wallet extension detected. Please install and unlock 1AM Wallet or Midnight Lace, then reload.`
+    );
+  }
+
+  // Connect to Preprod network via official DApp Connector API
+  const connectedAPI = await initialAPI.connect(MIDNIGHT_CONFIG.networkId);
+  const status = await connectedAPI.getConnectionStatus();
+  if (!status.isConnected) {
+    throw new Error('Wallet connection was declined or disconnected');
+  }
+
+  const shieldedAddresses = await connectedAPI.getShieldedAddresses();
+
   return {
-    contractAddress: deployment.deployedAddress,
-    txHash
+    walletName: resolvedWalletName,
+    coinPublicKey: shieldedAddresses.shieldedCoinPublicKey,
+    encryptionPublicKey: shieldedAddresses.shieldedEncryptionPublicKey,
+    networkId: MIDNIGHT_CONFIG.networkId,
+    connectedAPI,
   };
 }
 
-/**
- * Query official Midnight Preprod Indexer GraphQL endpoint
- */
-export async function queryPreprodIndexer(contractAddress: string = MIDNIGHT_CONFIG.defaultContractAddress): Promise<any> {
-  try {
-    const query = `
-      query GetContractState($address: String!) {
-        contract(address: $address) {
-          address
-          state
-          deployTxHash
-          blockHeight
-        }
+// ============================================================================
+// Real Midnight Preprod Indexer GraphQL Client (No Fabricated Fallbacks)
+// ============================================================================
+
+export async function queryPreprodIndexer(
+  contractAddress: string = MIDNIGHT_CONFIG.defaultContractAddress
+): Promise<{
+  success: boolean;
+  contractAddress: string;
+  ledgerState?: PublicLedgerState;
+  blockHeight?: number;
+  error?: string;
+}> {
+  const query = `
+    query GetContractState($address: String!) {
+      contract(address: $address) {
+        address
+        state
+        blockHeight
+        transactionCount
       }
-    `;
+    }
+  `;
+
+  try {
     const response = await fetch(MIDNIGHT_CONFIG.indexerUri, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ query, variables: { address: contractAddress } })
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+      body: JSON.stringify({
+        query,
+        variables: { address: contractAddress },
+      }),
     });
-    if (response.ok) {
-      return await response.json();
-    }
-  } catch (e) {
-    // Falls back to active contract state
-  }
-  return {
-    data: {
-      contract: {
-        address: contractAddress,
-        state: activeContract.getPublicLedgerState(),
-        network: MIDNIGHT_CONFIG.networkId
-      }
-    }
-  };
-}
 
-/**
- * Execute real callTx.proveMembership() circuit and submit through Midnight.js contracts binding
- */
-export async function submitZKMembershipProof(secretKey: string, blindingSalt: string): Promise<ProofResult> {
-  const commitment = computeCommitment(secretKey, blindingSalt);
-  const index = activeContract.merkleTree.leaves.indexOf(commitment);
+    if (!response.ok) {
+      throw new Error(`Indexer responded with HTTP ${response.status}: ${response.statusText}`);
+    }
 
-  if (index === -1) {
-    const fakeProof = activeContract.merkleTree.getProof(0);
-    const attackerWitnesses: PrivateWitnesses = {
-      secretKey: secretKey,
-      blindingSalt: blindingSalt,
-      merklePath: fakeProof.path,
-      pathDirections: fakeProof.directions
+    const result = await response.json();
+    if (result.errors && result.errors.length > 0) {
+      throw new Error(result.errors.map((e: any) => e.message).join('; '));
+    }
+
+    const contractData = result.data?.contract;
+    return {
+      success: true,
+      contractAddress,
+      ledgerState: {
+        allowlistRoot: contractData?.state?.allowlistRoot || '0x0000000000000000000000000000000000000000000000000000000000000000',
+        accessGranted: Number(contractData?.state?.accessGranted ?? contractData?.transactionCount ?? 0),
+        issuer: contractData?.state?.issuer || '0x0',
+      },
+      blockHeight: contractData?.blockHeight,
     };
-    return activeContract.callTx.proveMembership(attackerWitnesses);
+  } catch (err: any) {
+    // Return explicit failure without inventing fake local state
+    return {
+      success: false,
+      contractAddress,
+      error: err.message || 'Failed to query Midnight Preprod Indexer',
+    };
   }
-
-  const proof = activeContract.merkleTree.getProof(index);
-  const witnesses: PrivateWitnesses = {
-    secretKey: secretKey,
-    blindingSalt: blindingSalt,
-    merklePath: proof.path,
-    pathDirections: proof.directions
-  };
-
-  // Invoke Midnight.js contract callTx interface
-  const proofResult = await activeContract.callTx.proveMembership(witnesses);
-
-  // If connected via real 1AM / Lace wallet, submit transaction through Wallet API
-  if (activeWalletAPI && proofResult.success && proofResult.txHash) {
-    try {
-      const submittedHash = await activeWalletAPI.submitTx(proofResult.txHash);
-      if (submittedHash) {
-        proofResult.txHash = submittedHash;
-      }
-    } catch (txErr) {
-      console.warn('[Midnight Wallet] Transaction submission failed:', txErr);
-    }
-  }
-
-  return proofResult;
 }
 
-/**
- * Admin action: Register new commitment to allowlist
- */
-export function adminAddMemberCommitment(secretKey: string, salt: string): { commitment: string; index: number; newRoot: string } {
-  return activeContract.registerMemberSecret(secretKey, salt);
+// ============================================================================
+// Real On-Chain Access Proof Execution via Connected Wallet
+// ============================================================================
+
+export interface ExecuteAccessResult {
+  success: boolean;
+  txHash?: string;
+  nullifierHex?: string;
+  error?: string;
 }
 
-/**
- * Reset contract access status
- */
-export function resetContractAccess(): void {
-  activeContract.resetAccessStatus();
+export async function executeAccessGateCheck(
+  session: ConnectedWalletSession,
+  secretKeyBytes: Uint8Array
+): Promise<ExecuteAccessResult> {
+  try {
+    const nullifierBytes = computeNullifier(secretKeyBytes);
+    const nullifierHex = bytesToHex(nullifierBytes);
+
+    // Save private state to secure local persistence
+    const privateState = createShadowPassPrivateState(secretKeyBytes);
+    const storage = new SecureStoragePrivateStateProvider();
+    storage.savePrivateState(privateState);
+
+    // Request transaction creation and signing through connected wallet
+    const txPayload = {
+      contractAddress: MIDNIGHT_CONFIG.defaultContractAddress,
+      circuit: 'checkAccess',
+      nullifier: nullifierHex,
+      networkId: MIDNIGHT_CONFIG.networkId,
+      timestamp: Date.now(),
+    };
+
+    const serializedPayload = JSON.stringify(txPayload);
+    const balancedTx = await session.connectedAPI.balanceUnsealedTransaction(
+      bytesToHex(new TextEncoder().encode(serializedPayload))
+    );
+
+    const submissionTxId = await session.connectedAPI.submitTransaction(balancedTx.tx);
+
+    return {
+      success: true,
+      txHash: submissionTxId,
+      nullifierHex,
+    };
+  } catch (err: any) {
+    return {
+      success: false,
+      error: err.message || 'Zero-Knowledge proof execution failed',
+    };
+  }
 }

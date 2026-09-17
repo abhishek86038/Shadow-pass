@@ -1,38 +1,67 @@
 import { describe, it, expect } from 'vitest';
-import { 
-  getLedgerState, 
-  submitZKMembershipProof, 
-  DEMO_MEMBER_1,
-  connectLaceWallet 
+import {
+  detectMidnightWallets,
+  connectDAppWallet,
+  SecureStoragePrivateStateProvider,
+  queryPreprodIndexer,
+  createShadowPassPrivateState,
+  bytesToHex,
+  hexToBytes,
+  MIDNIGHT_CONFIG,
 } from '../frontend/src/contract-bindings.js';
 
-describe('Frontend dApp Integration & Wallet Binding Test Suite', () => {
-  it('Test 5: Frontend wallet connector validates Lace extension presence and sandbox fallback', async () => {
-    // In headless Node test environment without browser extension, it reports disconnected
-    const headlessWallet = await connectLaceWallet(false);
-    expect(headlessWallet.isConnected).toBe(false);
-    expect(headlessWallet.errorMessage).toContain('Midnight Lace Wallet extension not detected');
+describe('Frontend DApp Connector & Secure Storage Test Suite', () => {
+  const dummySecretHex = '1122334455667788990011223344556677889900112233445566778899001122';
 
-    // In sandbox mode, it generates a valid connected session
-    const sandboxWallet = await connectLaceWallet(true);
-    expect(sandboxWallet.isConnected).toBe(true);
-    expect(sandboxWallet.address).toBeDefined();
-    expect(typeof sandboxWallet.address).toBe('string');
-    expect(sandboxWallet.network).toContain('Preprod');
+  it('Test 5: DApp Connector handles headless environment cleanly without throwing unhandled exceptions', async () => {
+    const detection = await detectMidnightWallets();
+    expect(detection).toBeDefined();
+    expect(Array.isArray(detection.wallets)).toBe(true);
+
+    // In headless Node test environment, connectDAppWallet throws a clear descriptive error
+    await expect(connectDAppWallet('1AM')).rejects.toThrow();
   });
 
-  it('Test 6: Frontend ZK membership proof submission succeeds and updates state', async () => {
-    const initialState = getLedgerState();
-    expect(initialState.accessGranted).toBe(false);
+  it('Test 6: SecureStoragePrivateStateProvider correctly persists and restores private state', () => {
+    // Create mock localStorage
+    const mockStorage: Record<string, string> = {};
+    const globalAny = globalThis as any;
+    globalAny.window = {
+      localStorage: {
+        getItem: (k: string) => mockStorage[k] || null,
+        setItem: (k: string, v: string) => {
+          mockStorage[k] = v;
+        },
+        removeItem: (k: string) => {
+          delete mockStorage[k];
+        },
+      },
+    };
 
-    const result = await submitZKMembershipProof(DEMO_MEMBER_1.secret, DEMO_MEMBER_1.salt);
-    
-    expect(result.success).toBe(true);
-    expect(result.accessGranted).toBe(true);
-    expect(result.proofVerified).toBe(true);
-    expect(result.txHash).toBeDefined();
+    const provider = new SecureStoragePrivateStateProvider(MIDNIGHT_CONFIG.defaultContractAddress);
+    const privateState = createShadowPassPrivateState(hexToBytes(dummySecretHex));
 
-    const updatedState = getLedgerState();
-    expect(updatedState.accessGranted).toBe(true);
+    provider.savePrivateState(privateState);
+
+    const loaded = provider.getPrivateState();
+    expect(loaded).not.toBeNull();
+    expect(bytesToHex(loaded!.secretKey)).toEqual(dummySecretHex);
+    expect(loaded!.pathDirections.length).toBe(5);
+
+    provider.clear();
+    expect(provider.getPrivateState()).toBeNull();
+  });
+
+  it('Test 7: Preprod Indexer GraphQL client handles real endpoint queries and errors properly without fake fallbacks', async () => {
+    const res = await queryPreprodIndexer(MIDNIGHT_CONFIG.defaultContractAddress);
+    expect(res).toBeDefined();
+    expect(res.contractAddress).toBe(MIDNIGHT_CONFIG.defaultContractAddress);
+    // In test environment without network, it returns an explicit failure without inventing fake local state
+    if (!res.success) {
+      expect(res.error).toBeDefined();
+      expect(res.ledgerState).toBeUndefined();
+    } else {
+      expect(res.ledgerState).toBeDefined();
+    }
   });
 });

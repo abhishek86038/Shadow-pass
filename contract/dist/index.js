@@ -4,21 +4,61 @@
 // ============================================================================
 export const MIDNIGHT_CONFIG = {
     networkId: 'preprod',
-    indexerUri: 'https://indexer.preprod.midnight.network/api/v1/graphql',
-    indexerWsUri: 'wss://indexer.preprod.midnight.network/api/v1/graphql/ws',
+    indexerUri: 'https://indexer.preprod.midnight.network/api/v4/graphql',
+    indexerWsUri: 'wss://indexer.preprod.midnight.network/api/v4/graphql/ws',
     nodeRpcUri: 'https://rpc.preprod.midnight.network',
-    proofServerUri: 'http://127.0.0.1:6300',
+    proofServerUri: 'https://prover.preprod.midnight.network',
     defaultContractAddress: 'f58d3e681578fff354e5391111b384f5dca9f39c9d567bdcf9fff84727ae8f56'
 };
+export const createShadowPassPrivateState = (secretKey, merklePath = [
+    new Uint8Array(32),
+    new Uint8Array(32),
+    new Uint8Array(32),
+    new Uint8Array(32),
+    new Uint8Array(32),
+], pathDirections = [false, false, false, false, false]) => ({
+    secretKey,
+    merklePath,
+    pathDirections,
+});
 // ============================================================================
-// Cryptographic Utility (Isomorphic SHA-256 Compact-Compatible)
+// Authoritative Witnesses Provider Object
 // ============================================================================
-function sha256Pure(hexInput) {
-    const cleanHex = hexInput.replace(/[^0-9a-fA-F]/g, '');
-    const bytes = new Uint8Array(cleanHex.length / 2);
-    for (let i = 0; i < cleanHex.length; i += 2) {
-        bytes[i / 2] = parseInt(cleanHex.substring(i, i + 2), 16);
+export const witnesses = {
+    secretKey: ({ privateState }) => [
+        privateState,
+        privateState.secretKey,
+    ],
+    merklePath: ({ privateState, }) => [privateState, privateState.merklePath],
+    pathDirections: ({ privateState, }) => [privateState, privateState.pathDirections],
+};
+// ============================================================================
+// Cryptographic Circuit Helpers (Pure SHA-256 for Leaf & Nullifier Derivation)
+// ============================================================================
+export function computeLeafCommitment(secretKeyBytes) {
+    const crypto = typeof globalThis.crypto !== 'undefined' ? globalThis.crypto : undefined;
+    if (!crypto || !crypto.subtle) {
+        // Synchronous fallback using SHA-256
+        return sha256Bytes(concatBytes(pad32('gatecheck:leaf'), secretKeyBytes));
     }
+    return sha256Bytes(concatBytes(pad32('gatecheck:leaf'), secretKeyBytes));
+}
+export function computeNullifier(secretKeyBytes) {
+    return sha256Bytes(concatBytes(pad32('gatecheck:null'), secretKeyBytes));
+}
+function pad32(str) {
+    const bytes = new Uint8Array(32);
+    const encoded = new TextEncoder().encode(str);
+    bytes.set(encoded.subarray(0, 32));
+    return bytes;
+}
+function concatBytes(a, b) {
+    const res = new Uint8Array(a.length + b.length);
+    res.set(a, 0);
+    res.set(b, a.length);
+    return res;
+}
+function sha256Bytes(data) {
     const K = [
         0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
         0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
@@ -27,25 +67,24 @@ function sha256Pure(hexInput) {
         0x27b70a85, 0x2e1b2138, 0x4d2c6dfc, 0x53380d13, 0x650a7354, 0x766a0abb, 0x81c2c92e, 0x92722c85,
         0xa2bfe8a1, 0xa81a664b, 0xc24b8b70, 0xc76c51a3, 0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070,
         0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5, 0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3,
-        0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2
+        0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2,
     ];
     let H0 = 0x6a09e667, H1 = 0xbb67ae85, H2 = 0x3c6ef372, H3 = 0xa54ff53a;
     let H4 = 0x510e527f, H5 = 0x9b05688c, H6 = 0x1f83d9ab, H7 = 0x5be0cd19;
-    const l = bytes.length;
+    const l = data.length;
     const bitLen = l * 8;
     const k = (448 - ((l * 8 + 8) % 512) + 512) % 512;
     const paddedLen = l + 1 + k / 8 + 8;
     const padded = new Uint8Array(paddedLen);
-    padded.set(bytes, 0);
+    padded.set(data, 0);
     padded[l] = 0x80;
     const view = new DataView(padded.buffer);
     view.setUint32(paddedLen - 4, bitLen & 0xffffffff, false);
     view.setUint32(paddedLen - 8, Math.floor(bitLen / 0x100000000), false);
     const W = new Uint32Array(64);
     for (let i = 0; i < paddedLen; i += 64) {
-        for (let t = 0; t < 16; t++) {
+        for (let t = 0; t < 16; t++)
             W[t] = view.getUint32(i + t * 4, false);
-        }
         for (let t = 16; t < 64; t++) {
             const s0 = ((W[t - 15] >>> 7) | (W[t - 15] << 25)) ^ ((W[t - 15] >>> 18) | (W[t - 15] << 14)) ^ (W[t - 15] >>> 3);
             const s1 = ((W[t - 2] >>> 17) | (W[t - 2] << 15)) ^ ((W[t - 2] >>> 19) | (W[t - 2] << 13)) ^ (W[t - 2] >>> 10);
@@ -77,187 +116,26 @@ function sha256Pure(hexInput) {
         H6 = (H6 + g) | 0;
         H7 = (H7 + h) | 0;
     }
-    const toHex = (n) => (n >>> 0).toString(16).padStart(8, '0');
-    return toHex(H0) + toHex(H1) + toHex(H2) + toHex(H3) + toHex(H4) + toHex(H5) + toHex(H6) + toHex(H7);
+    const result = new Uint8Array(32);
+    const outView = new DataView(result.buffer);
+    outView.setUint32(0, H0, false);
+    outView.setUint32(4, H1, false);
+    outView.setUint32(8, H2, false);
+    outView.setUint32(12, H3, false);
+    outView.setUint32(16, H4, false);
+    outView.setUint32(20, H5, false);
+    outView.setUint32(24, H6, false);
+    outView.setUint32(28, H7, false);
+    return result;
 }
-export function sha256Hash(data) {
-    return sha256Pure(data);
+export function bytesToHex(bytes) {
+    return Array.from(bytes).map((b) => b.toString(16).padStart(2, '0')).join('');
 }
-export function computeCommitment(secretKey, blindingSalt) {
-    const combined = secretKey.trim().toLowerCase() + blindingSalt.trim().toLowerCase();
-    return sha256Pure(combined);
-}
-export function sha256Concat(left, right) {
-    return sha256Pure(left + right);
-}
-// ============================================================================
-// 8-Level Merkle Tree for ZK Circuit Allowlist Verification
-// ============================================================================
-export class MerkleTree {
-    depth;
-    leaves;
-    emptyLeaf;
-    constructor(depth = 8) {
-        this.depth = depth;
-        this.leaves = [];
-        this.emptyLeaf = '0'.repeat(64);
+export function hexToBytes(hex) {
+    const clean = hex.replace(/^0x/, '');
+    const bytes = new Uint8Array(clean.length / 2);
+    for (let i = 0; i < clean.length; i += 2) {
+        bytes[i / 2] = parseInt(clean.substring(i, i + 2), 16);
     }
-    addLeaf(leafHash) {
-        this.leaves.push(leafHash);
-        return this.leaves.length - 1;
-    }
-    getRoot() {
-        if (this.leaves.length === 0) {
-            return this.computeZeroRoot();
-        }
-        let currentLevel = [...this.leaves];
-        const totalSlots = Math.pow(2, this.depth);
-        while (currentLevel.length < totalSlots) {
-            currentLevel.push(this.emptyLeaf);
-        }
-        for (let level = 0; level < this.depth; level++) {
-            const nextLevel = [];
-            for (let i = 0; i < currentLevel.length; i += 2) {
-                const left = currentLevel[i];
-                const right = currentLevel[i + 1];
-                nextLevel.push(sha256Concat(left, right));
-            }
-            currentLevel = nextLevel;
-        }
-        return currentLevel[0];
-    }
-    getProof(index) {
-        const totalSlots = Math.pow(2, this.depth);
-        let currentLevel = [...this.leaves];
-        while (currentLevel.length < totalSlots) {
-            currentLevel.push(this.emptyLeaf);
-        }
-        const path = [];
-        const directions = [];
-        let currentIndex = index;
-        for (let level = 0; level < this.depth; level++) {
-            const isRightSibling = currentIndex % 2 === 0;
-            const siblingIndex = isRightSibling ? currentIndex + 1 : currentIndex - 1;
-            path.push(currentLevel[siblingIndex]);
-            directions.push(isRightSibling);
-            const nextLevel = [];
-            for (let i = 0; i < currentLevel.length; i += 2) {
-                nextLevel.push(sha256Concat(currentLevel[i], currentLevel[i + 1]));
-            }
-            currentLevel = nextLevel;
-            currentIndex = Math.floor(currentIndex / 2);
-        }
-        return { path, directions };
-    }
-    computeZeroRoot() {
-        let current = this.emptyLeaf;
-        for (let i = 0; i < this.depth; i++) {
-            current = sha256Concat(current, current);
-        }
-        return current;
-    }
-}
-// ============================================================================
-// AllowlistContract: Midnight.js Contract Binding Implementation
-// ============================================================================
-export class AllowlistContract {
-    contractAddress;
-    networkId;
-    ledger;
-    merkleTree;
-    callTx;
-    constructor(adminPubKey, treeDepth = 8, contractAddress = MIDNIGHT_CONFIG.defaultContractAddress) {
-        this.contractAddress = contractAddress;
-        this.networkId = MIDNIGHT_CONFIG.networkId;
-        this.merkleTree = new MerkleTree(treeDepth);
-        const initialRoot = this.merkleTree.getRoot();
-        this.ledger = {
-            allowlistRoot: initialRoot,
-            accessGranted: false,
-            registeredCount: 0,
-            adminIdentity: adminPubKey,
-            lastEventNonce: 0
-        };
-        this.callTx = {
-            proveMembership: async (witnesses) => {
-                return this.proveMembership(witnesses);
-            }
-        };
-    }
-    getPublicLedgerState() {
-        return { ...this.ledger };
-    }
-    async queryLedgerState() {
-        return { ...this.ledger };
-    }
-    registerMemberSecret(secretKey, blindingSalt) {
-        const commitment = computeCommitment(secretKey, blindingSalt);
-        const index = this.merkleTree.addLeaf(commitment);
-        const newRoot = this.merkleTree.getRoot();
-        this.ledger.allowlistRoot = newRoot;
-        this.ledger.registeredCount = this.merkleTree.leaves.length;
-        this.ledger.lastEventNonce += 1;
-        return { commitment, index, newRoot };
-    }
-    addCommitment(commitment) {
-        const index = this.merkleTree.addLeaf(commitment);
-        const newRoot = this.merkleTree.getRoot();
-        this.ledger.allowlistRoot = newRoot;
-        this.ledger.registeredCount = this.merkleTree.leaves.length;
-        this.ledger.lastEventNonce += 1;
-        return { index, newRoot };
-    }
-    proveMembership(witnesses) {
-        const leaf = computeCommitment(witnesses.secretKey, witnesses.blindingSalt);
-        const expectedRoot = this.ledger.allowlistRoot;
-        let verifiedRoot = leaf;
-        for (let i = 0; i < witnesses.merklePath.length; i++) {
-            const sibling = witnesses.merklePath[i];
-            const isRightSibling = witnesses.pathDirections[i];
-            if (isRightSibling) {
-                verifiedRoot = sha256Concat(verifiedRoot, sibling);
-            }
-            else {
-                verifiedRoot = sha256Concat(sibling, verifiedRoot);
-            }
-        }
-        if (verifiedRoot !== expectedRoot) {
-            return {
-                success: false,
-                accessGranted: false,
-                proofVerified: false,
-                error: `ZK Proof Verification Failed: Secret identity commitment ${leaf.slice(0, 10)}... is not in allowlist Merkle root ${expectedRoot.slice(0, 10)}...`
-            };
-        }
-        this.ledger.accessGranted = true;
-        this.ledger.lastEventNonce += 1;
-        return {
-            success: true,
-            accessGranted: true,
-            proofVerified: true,
-            txHash: '0x' + sha256Pure(Date.now().toString() + verifiedRoot)
-        };
-    }
-    resetAccessStatus() {
-        this.ledger.accessGranted = false;
-    }
-}
-/**
- * Official Midnight.js deployContract helper function
- */
-export async function deployContract(adminPubKey, treeDepth = 8) {
-    const contract = new AllowlistContract(adminPubKey, treeDepth);
-    const txHash = '0x' + sha256Pure('deploy_' + adminPubKey + Date.now().toString());
-    return {
-        contract,
-        deployedAddress: contract.contractAddress,
-        txHash
-    };
-}
-/**
- * Official Midnight.js findDeployedContract helper function
- */
-export async function findDeployedContract(contractAddress) {
-    const adminAddress = '0xadmin_pubkey_11223344556677889900aabbccddeeff11223344556677889900aabb';
-    return new AllowlistContract(adminAddress, 8, contractAddress);
+    return bytes;
 }

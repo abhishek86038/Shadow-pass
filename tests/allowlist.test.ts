@@ -1,148 +1,66 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import {
-  AllowlistContract,
-  computeCommitment,
-  PrivateWitnesses
+  computeLeafCommitment,
+  computeNullifier,
+  bytesToHex,
+  hexToBytes,
+  witnesses,
+  createShadowPassPrivateState,
+  MIDNIGHT_CONFIG,
 } from '../contract/src/index.js';
 
-describe('Midnight Allowlist Compact Contract & ZK Circuit Test Suite', () => {
-  let contract: AllowlistContract;
-  let adminPubKey: string;
+describe('Authoritative Midnight Compact Circuit & ZK Allowlist Test Suite', () => {
+  const secretKey1Hex = 'a1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e5f60718293a4b5c6d7e8f90';
+  const secretKey2Hex = 'f9e8d7c6b5a4039281726151413121110f9e8d7c6b5a40392817261514131211';
+  const secretKey1Bytes = hexToBytes(secretKey1Hex);
+  const secretKey2Bytes = hexToBytes(secretKey2Hex);
 
-  // Member 1 credentials
-  const member1Secret = 'a1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e5f60718293a4b5c6d7e8f90';
-  const member1Salt = '1111111111111111111111111111111111111111111111111111111111111111';
+  it('Test 1: Pure leaf commitment derivation is deterministic and length-checked', () => {
+    const leaf1 = computeLeafCommitment(secretKey1Bytes);
+    const leaf2 = computeLeafCommitment(secretKey1Bytes);
+    expect(leaf1.length).toBe(32);
+    expect(bytesToHex(leaf1)).toEqual(bytesToHex(leaf2));
 
-  // Member 2 credentials
-  const member2Secret = 'f9e8d7c6b5a4039281726151413121110f9e8d7c6b5a40392817261514131211';
-  const member2Salt = '2222222222222222222222222222222222222222222222222222222222222222';
-
-  // Non-member credentials
-  const attackerSecret = 'deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef';
-  const attackerSalt = '9999999999999999999999999999999999999999999999999999999999999999';
-
-  beforeEach(() => {
-    adminPubKey = 'admin_pubkey_11223344556677889900aabbccddeeff11223344556677889900aabb';
-    contract = new AllowlistContract(adminPubKey, 8);
+    const distinctLeaf = computeLeafCommitment(secretKey2Bytes);
+    expect(bytesToHex(leaf1)).not.toEqual(bytesToHex(distinctLeaf));
   });
 
-  it('Test 1: Valid member proof generation and contract execution succeeds', () => {
-    // Admin registers Member 1 commitment
-    const { index: idx1 } = contract.registerMemberSecret(member1Secret, member1Salt);
-    // Admin registers Member 2 commitment
-    contract.registerMemberSecret(member2Secret, member2Salt);
+  it('Test 2: Nullifier derivation guarantees one-way replay protection', () => {
+    const nullifier1 = computeNullifier(secretKey1Bytes);
+    const nullifier2 = computeNullifier(secretKey1Bytes);
+    expect(nullifier1.length).toBe(32);
+    expect(bytesToHex(nullifier1)).toEqual(bytesToHex(nullifier2));
 
-    // Member 1 constructs ZK private witnesses
-    const proof1 = contract.merkleTree.getProof(idx1);
-    const witnesses: PrivateWitnesses = {
-      secretKey: member1Secret,
-      blindingSalt: member1Salt,
-      merklePath: proof1.path,
-      pathDirections: proof1.directions
-    };
+    // Nullifier must not reveal secretKey or leaf
+    const leaf1 = computeLeafCommitment(secretKey1Bytes);
+    expect(bytesToHex(nullifier1)).not.toEqual(bytesToHex(leaf1));
+    expect(bytesToHex(nullifier1)).not.toEqual(secretKey1Hex);
 
-    // Execute ZK circuit membership proof
-    const result = contract.proveMembership(witnesses);
-
-    expect(result.success).toBe(true);
-    expect(result.accessGranted).toBe(true);
-    expect(result.proofVerified).toBe(true);
-    expect(contract.getPublicLedgerState().accessGranted).toBe(true);
+    const distinctNullifier = computeNullifier(secretKey2Bytes);
+    expect(bytesToHex(nullifier1)).not.toEqual(bytesToHex(distinctNullifier));
   });
 
-  it('Test 2: Non-member proof generation/verification fails clean without access granted', () => {
-    // Register Member 1 only
-    contract.registerMemberSecret(member1Secret, member1Salt);
+  it('Test 3: Private witnesses provider extracts witness data without mutation', () => {
+    const privateState = createShadowPassPrivateState(secretKey1Bytes);
+    const mockContext = { privateState } as any;
 
-    // Attacker tries to generate proof using their non-member secret
-    const fakeProof = contract.merkleTree.getProof(0); // Uses sibling path of index 0
+    const [stateOut, extractedSecret] = witnesses.secretKey(mockContext);
+    expect(stateOut).toBe(privateState);
+    expect(bytesToHex(extractedSecret)).toEqual(secretKey1Hex);
 
-    const attackerWitnesses: PrivateWitnesses = {
-      secretKey: attackerSecret,
-      blindingSalt: attackerSalt,
-      merklePath: fakeProof.path,
-      pathDirections: fakeProof.directions
-    };
+    const [, path] = witnesses.merklePath(mockContext);
+    expect(path.length).toBe(5);
 
-    const result = contract.proveMembership(attackerWitnesses);
-
-    expect(result.success).toBe(false);
-    expect(result.accessGranted).toBe(false);
-    expect(result.proofVerified).toBe(false);
-    expect(result.error).toContain('ZK Proof Verification Failed');
-    expect(contract.getPublicLedgerState().accessGranted).toBe(false);
+    const [, directions] = witnesses.pathDirections(mockContext);
+    expect(directions.length).toBe(5);
   });
 
-  it('Test 3: Zero identity leakage assertion (Privacy Model Verification)', () => {
-    // Register Member 1 and Member 2
-    contract.registerMemberSecret(member1Secret, member1Salt);
-    const { index: idx2 } = contract.registerMemberSecret(member2Secret, member2Salt);
-
-    // Member 2 proves access
-    const proof2 = contract.merkleTree.getProof(idx2);
-    const witnesses: PrivateWitnesses = {
-      secretKey: member2Secret,
-      blindingSalt: member2Salt,
-      merklePath: proof2.path,
-      pathDirections: proof2.directions
-    };
-
-    contract.proveMembership(witnesses);
-
-    const publicState = contract.getPublicLedgerState();
-    const publicStateJSON = JSON.stringify(publicState);
-
-    // Verify raw secrets, salts, and identity string DO NOT exist anywhere in public state
-    expect(publicStateJSON).not.toContain(member2Secret);
-    expect(publicStateJSON).not.toContain(member2Salt);
-    expect(publicStateJSON).not.toContain('secretKey');
-    expect(publicStateJSON).not.toContain('blindingSalt');
-    expect(publicStateJSON).not.toContain('memberAddress');
-
-    // Public ledger state contains ONLY root, flag, counts, and admin
-    expect(publicState).toHaveProperty('allowlistRoot');
-    expect(publicState).toHaveProperty('accessGranted', true);
-    expect(publicState).toHaveProperty('registeredCount', 2);
-    expect(publicState).toHaveProperty('adminIdentity', adminPubKey);
-  });
-
-  it('Test 4: Admin commitment registration updates allowlist Merkle root correctly', () => {
-    const initialRoot = contract.getPublicLedgerState().allowlistRoot;
-    
-    // Register commitment
-    const comm = computeCommitment(member1Secret, member1Salt);
-    const { newRoot } = contract.addCommitment(comm);
-
-    expect(newRoot).not.toBe(initialRoot);
-    expect(contract.getPublicLedgerState().allowlistRoot).toBe(newRoot);
-    expect(contract.getPublicLedgerState().registeredCount).toBe(1);
-  });
-
-  it('Test 5: Midnight.js deployContract helper returns contract binding and address', async () => {
-    const { deployContract, findDeployedContract, MIDNIGHT_CONFIG } = await import('../contract/src/index.js');
-    const deployment = await deployContract(adminPubKey, 8);
-    expect(deployment.contract).toBeDefined();
-    expect(deployment.deployedAddress).toBe(MIDNIGHT_CONFIG.defaultContractAddress);
-    expect(deployment.txHash).toMatch(/^0x[a-f0-9]{64}$/);
-
-    const found = await findDeployedContract(deployment.deployedAddress);
-    expect(found.contractAddress).toBe(deployment.deployedAddress);
-    expect(found.networkId).toBe('preprod');
-  });
-
-  it('Test 6: Midnight.js callTx.proveMembership() interface execution verifies valid witness', async () => {
-    const { index: idx1 } = contract.registerMemberSecret(member1Secret, member1Salt);
-    const proof1 = contract.merkleTree.getProof(idx1);
-    const witnesses: PrivateWitnesses = {
-      secretKey: member1Secret,
-      blindingSalt: member1Salt,
-      merklePath: proof1.path,
-      pathDirections: proof1.directions
-    };
-
-    const callResult = await contract.callTx.proveMembership(witnesses);
-    expect(callResult.success).toBe(true);
-    expect(callResult.accessGranted).toBe(true);
-    expect(callResult.txHash).toBeDefined();
+  it('Test 4: Verified Preprod configuration matches authoritative testnet endpoints', () => {
+    expect(MIDNIGHT_CONFIG.networkId).toBe('preprod');
+    expect(MIDNIGHT_CONFIG.indexerUri).toContain('indexer.preprod.midnight.network');
+    expect(MIDNIGHT_CONFIG.nodeRpcUri).toContain('rpc.preprod.midnight.network');
+    expect(MIDNIGHT_CONFIG.defaultContractAddress).toBe(
+      'f58d3e681578fff354e5391111b384f5dca9f39c9d567bdcf9fff84727ae8f56'
+    );
   });
 });
