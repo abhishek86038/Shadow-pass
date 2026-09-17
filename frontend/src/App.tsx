@@ -296,7 +296,7 @@ export default function GhostVault() {
           {/* VERIFIED CONTRACT BADGE */}
           <div className="pt-2 flex flex-wrap items-center justify-center gap-3">
             <a
-              href={`https://preprod.midnight.network/contract/${MIDNIGHT_CONFIG.defaultContractAddress}`}
+              href={`https://preprod.midnightexplorer.com/contracts/0x${MIDNIGHT_CONFIG.defaultContractAddress}`}
               target="_blank"
               rel="noreferrer"
               className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/[0.04] border border-cyan-500/30 text-cyan-300 text-xs font-mono hover:bg-white/[0.08] transition-colors"

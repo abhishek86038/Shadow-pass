@@ -1,11 +1,11 @@
 # ShadowPass — Zero-Knowledge Private Allowlist Access dApp
 
 [![ShadowPass CI/CD Pipeline](https://github.com/abhishek86038/Shadow-pass/actions/workflows/ci.yml/badge.svg)](https://github.com/abhishek86038/Shadow-pass/actions/workflows/ci.yml)
-[![Midnight Blockchain][https://preprod.midnightexplorer.com/contracts/0xf58d3e681578fff354e5391111b384f5dca9f39c9d567bdcf9fff84727ae8f56](https://preprod.midnightexplorer.com/contracts/0xf58d3e681578fff354e5391111b384f5dca9f39c9d567bdcf9fff84727ae8f56)
+[![Midnight Network: Preprod](https://img.shields.io/badge/Midnight-Preprod-22c55e?logo=midnight&logoColor=white)](https://preprod.midnightexplorer.com/)
 [![X Profile](https://img.shields.io/badge/X-@ShadowPasses-black?logo=x&logoColor=white)](https://x.com/ShadowPasses)
 [![License: MIT](https://img.shields.io/badge/License-MIT-purple.svg)](LICENSE)
 
-Live Demo: [https://shadow-pass-e28i.vercel.app/](https://shadow-pass-e28i.vercel.app/) | 🐦 **Product X Profile**: [https://x.com/ShadowPasses](https://x.com/ShadowPasses) | 🎬 **Demo Video**: [Watch Demo Video](https://photos.app.goo.gl/UPcnamPqq9xaidDWA)
+Live Demo: [https://shadow-pass-e28i.vercel.app/](https://shadow-pass-e28i.vercel.app/) | 🔍 **Midnight Explorer**: [https://preprod.midnightexplorer.com/](https://preprod.midnightexplorer.com/) | 🐦 **Product X Profile**: [https://x.com/ShadowPasses](https://x.com/ShadowPasses) | 🎬 **Demo Video**: [Watch Demo Video](https://photos.app.goo.gl/UPcnamPqq9xaidDWA)
 
 ---
 
@@ -37,7 +37,8 @@ ShadowPass is deployed to the official **Midnight Preprod Testnet** (`setNetwork
 
 - **Network ID**: `preprod`
 - **Contract Address**: `f58d3e681578fff354e5391111b384f5dca9f39c9d567bdcf9fff84727ae8f56`
-- **Midnight Preprod Explorer**: [https://preprod.midnight.network/contract/f58d3e681578fff354e5391111b384f5dca9f39c9d567bdcf9fff84727ae8f56](https://preprod.midnightexplorer.com/contracts/0xf58d3e681578fff354e5391111b384f5dca9f39c9d567bdcf9fff84727ae8f56)
+- **Midnight Preprod Explorer**: [https://preprod.midnightexplorer.com/contracts/0xf58d3e681578fff354e5391111b384f5dca9f39c9d567bdcf9fff84727ae8f56](https://preprod.midnightexplorer.com/contracts/0xf58d3e681578fff354e5391111b384f5dca9f39c9d567bdcf9fff84727ae8f56)
+- **Preprod Explorer Portal**: [https://preprod.midnightexplorer.com/](https://preprod.midnightexplorer.com/)
 - **Preprod Indexer GraphQL**: `https://indexer.preprod.midnight.network/api/v4/graphql`
 - **Preprod Node RPC**: `https://rpc.preprod.midnight.network`
 - **CI/CD Deployment Action**: [Deploy to Preprod #34842858470](https://github.com/abhishek86038/Shadow-pass/actions/runs/34842858470)
