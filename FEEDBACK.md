@@ -8,7 +8,7 @@ This document details the **feedback collection, analysis, and iterative improve
 
 To evaluate user experience, cryptographic reliability, and Zero-Knowledge privacy guarantees, user feedback was collected through:
 1. **Interactive Community Testing Sessions:** Live testing on Midnight Preprod with Web3 builders, privacy advocates, and community testers.
-2. **Structured Google / Community Survey ([Google Feedback Form](https://forms.gle/QDDTeHERK9PdfinJ8)):** Focused on ease of onboarding, wallet interaction with Lace/1AM, ZK proof generation speed, and privacy confidence.
+2. **Structured Google / Community Survey ([Google Feedback Form](https://forms.gle/QDDTeHERK9PdfinJ8) & [Live Google Sheets Responses](https://docs.google.com/spreadsheets/d/1mfdZUCWXvvrmTSxuODPHTc-neIsAxo0CWEUuOnevnTs/edit?usp=sharing)):** Focused on ease of onboarding, wallet interaction with Lace/1AM, ZK proof generation speed, and privacy confidence.
 3. **Bug Tracking & Issue Reporting:** Direct user observation during wallet connection and transaction signing.
 
 ---
@@ -70,5 +70,6 @@ Based on the feedback collected during the Preprod testing cycle, the following 
 
 - **Live dApp:** [https://shadow-pass-e28i.vercel.app/](https://shadow-pass-e28i.vercel.app/)
 - **Feedback Form:** [https://forms.gle/QDDTeHERK9PdfinJ8](https://forms.gle/QDDTeHERK9PdfinJ8)
+- **Live Survey Responses (Google Sheets):** [https://docs.google.com/spreadsheets/d/1mfdZUCWXvvrmTSxuODPHTc-neIsAxo0CWEUuOnevnTs/edit?usp=sharing](https://docs.google.com/spreadsheets/d/1mfdZUCWXvvrmTSxuODPHTc-neIsAxo0CWEUuOnevnTs/edit?usp=sharing)
 - **GitHub Repository:** [https://github.com/abhishek86038/Shadow-pass](https://github.com/abhishek86038/Shadow-pass)
 - **Twitter / X Community Channel:** [@ShadowPasses](https://x.com/ShadowPasses)

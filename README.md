@@ -10,7 +10,7 @@
 🌐 **Live Demo**: [https://shadow-pass-e28i.vercel.app/](https://shadow-pass-e28i.vercel.app/)  
 🔍 **Midnight Explorer (Contract)**: [https://preprod.midnightexplorer.com/contracts/0xf58d3e681578fff354e5391111b384f5dca9f39c9d567bdcf9fff84727ae8f56](https://preprod.midnightexplorer.com/contracts/0xf58d3e681578fff354e5391111b384f5dca9f39c9d567bdcf9fff84727ae8f56)  
 🐦 **Product X Profile**: [https://x.com/ShadowPasses](https://x.com/ShadowPasses) | 🎬 **Demo Video**: [Watch Demo Video](https://photos.app.goo.gl/UPcnamPqq9xaidDWA)  
-📋 **User Feedback Form**: [https://forms.gle/QDDTeHERK9PdfinJ8](https://forms.gle/QDDTeHERK9PdfinJ8)
+📋 **User Feedback Form**: [https://forms.gle/QDDTeHERK9PdfinJ8](https://forms.gle/QDDTeHERK9PdfinJ8) | 📊 **Live Survey Responses (Google Sheets)**: [https://docs.google.com/spreadsheets/d/1mfdZUCWXvvrmTSxuODPHTc-neIsAxo0CWEUuOnevnTs/edit?usp=sharing](https://docs.google.com/spreadsheets/d/1mfdZUCWXvvrmTSxuODPHTc-neIsAxo0CWEUuOnevnTs/edit?usp=sharing)
 
 ---
 
@@ -244,6 +244,7 @@ ShadowPass/
 ShadowPass completed a comprehensive Level 5 user testing campaign on the Midnight Preprod Network with **52 unique community testers**:
 
 - **Google Feedback Survey**: [https://forms.gle/QDDTeHERK9PdfinJ8](https://forms.gle/QDDTeHERK9PdfinJ8)
+- **Live Survey Responses (Google Sheets)**: [https://docs.google.com/spreadsheets/d/1mfdZUCWXvvrmTSxuODPHTc-neIsAxo0CWEUuOnevnTs/edit?usp=sharing](https://docs.google.com/spreadsheets/d/1mfdZUCWXvvrmTSxuODPHTc-neIsAxo0CWEUuOnevnTs/edit?usp=sharing)
 - **Detailed User Feedback Report**: [FEEDBACK.md](FEEDBACK.md) | [docs/FEEDBACK.md](docs/FEEDBACK.md)
 - **Verified On-Chain Users Ledger (52 TxIds)**: [USERS.md](USERS.md) | [PREPROD_USERS.md](PREPROD_USERS.md)
 - **User Acquisition & Outreach Strategy**: [USER_ACQUISITION.md](USER_ACQUISITION.md) | [docs/USER_ACQUISITION.md](docs/USER_ACQUISITION.md)
@@ -270,6 +271,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **Live dApp URL**: [https://shadow-pass-e28i.vercel.app/](https://shadow-pass-e28i.vercel.app/)
 - **Demo Video**: [https://photos.app.goo.gl/UPcnamPqq9xaidDWA](https://photos.app.goo.gl/UPcnamPqq9xaidDWA)
 - **User Feedback Form**: [https://forms.gle/QDDTeHERK9PdfinJ8](https://forms.gle/QDDTeHERK9PdfinJ8)
+- **Live Feedback Responses (Google Sheets)**: [https://docs.google.com/spreadsheets/d/1mfdZUCWXvvrmTSxuODPHTc-neIsAxo0CWEUuOnevnTs/edit?usp=sharing](https://docs.google.com/spreadsheets/d/1mfdZUCWXvvrmTSxuODPHTc-neIsAxo0CWEUuOnevnTs/edit?usp=sharing)
 - **Hackathon Level**: Midnight Hackathon Level 4 & Level 5 (Full Moon)
 
 
