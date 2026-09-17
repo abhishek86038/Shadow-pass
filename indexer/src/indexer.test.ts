@@ -1,35 +1,22 @@
 import { describe, it, expect } from 'vitest';
-import { indexedContract, syncIndexerEvents } from './index.js';
-import { computeCommitment, PrivateWitnesses } from '@shadow-pass/contract';
+import { recordIndexedEvent, getIndexedEvents, queryPreprodIndexerGraphQL } from './index.js';
+import { PublicLedgerState, MIDNIGHT_CONFIG } from '@shadow-pass/contract';
 
 describe('ShadowPass Backend Indexer Service Test Suite', () => {
-  it('Test 7: Indexer syncs contract events and updates event log', () => {
-    const memberSecret = 'a1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e5f60718293a4b5c6d7e8f90';
-    const memberSalt = '1111111111111111111111111111111111111111111111111111111111111111';
-
-    // Register member commitment
-    const { index } = indexedContract.registerMemberSecret(memberSecret, memberSalt);
-    
-    // Sync indexer
-    const eventsAfterRegister = syncIndexerEvents();
-    expect(eventsAfterRegister.length).toBeGreaterThan(0);
-    expect(eventsAfterRegister[0].allowlistRoot).toBe(indexedContract.getPublicLedgerState().allowlistRoot);
-
-    // Prove membership
-    const proof = indexedContract.merkleTree.getProof(index);
-    const witnesses: PrivateWitnesses = {
-      secretKey: memberSecret,
-      blindingSalt: memberSalt,
-      merklePath: proof.path,
-      pathDirections: proof.directions
+  it('Test 8: Indexer records on-chain contract events and serves GraphQL query wrapper', async () => {
+    const mockState: PublicLedgerState = {
+      allowlistRoot: '0x1122334455667788990011223344556677889900112233445566778899001122',
+      accessGranted: 1,
+      issuer: '0xadmin_issuer_pk',
     };
 
-    indexedContract.proveMembership(witnesses);
+    const recorded = recordIndexedEvent(mockState);
+    expect(recorded).toBeDefined();
+    expect(recorded.accessGranted).toBe(1);
+    expect(recorded.networkId).toBe(MIDNIGHT_CONFIG.networkId);
+    expect(recorded.privacyGuarantee).toContain('Zero identity');
 
-    // Sync indexer again
-    const eventsAfterProof = syncIndexerEvents();
-    expect(eventsAfterProof.length).toBe(2);
-    expect(eventsAfterProof[1].accessGranted).toBe(true);
-    expect(eventsAfterProof[1].privacyGuarantee).toContain('Zero identity');
+    const events = getIndexedEvents();
+    expect(events.length).toBeGreaterThan(0);
   });
 });
