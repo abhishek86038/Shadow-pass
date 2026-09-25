@@ -3,9 +3,11 @@
 Verified On-Chain Zero-Knowledge transaction receipts executed against Midnight Preprod Smart Contract:
 
 - **Contract Address**: `f58d3e681578fff354e5391111b384f5dca9f39c9d567bdcf9fff84727ae8f56`
+- **Circuit Verified**: `checkAccess()` in `contract/allowlist.compact`
 - **Midnight Explorer**: [https://preprod.midnightexplorer.com/contracts/0xf58d3e681578fff354e5391111b384f5dca9f39c9d567bdcf9fff84727ae8f56](https://preprod.midnightexplorer.com/contracts/0xf58d3e681578fff354e5391111b384f5dca9f39c9d567bdcf9fff84727ae8f56)
-- **Network**: `Midnight Preprod Testnet`
+- **Network**: `Midnight Preprod Testnet` (`setNetworkId("preprod")`)
 - **Total Verifications**: `52`
+- **Prover & Witness Specification**: Each transaction executes the Compact membership circuit `assert(merkleRootFrom(leafOf(secretKey), merklePath, pathDirections) == allowlistRoot)` and asserts anti-replay nullifier freshness `assert(!nullifiers.member(disclose(nullifier)))`.
 
 | # | User Identifier Hash (Bytes<32>) | Threshold Checked | Status | Proof Type | On-Chain Transaction Hash (TxId) |
 | :--- | :--- | :--- | :---: | :--- | :--- |

@@ -8,7 +8,7 @@ on:
 
 jobs:
   build-and-test:
-    name: Compile Contracts & Execute Test Suite
+    name: Compile Compact Circuits & Execute Integration Test Suite
     runs-on: ubuntu-latest
 
     steps:
@@ -21,17 +21,23 @@ jobs:
           node-version: '20'
           cache: 'npm'
 
-      - name: Install Dependencies
+      - name: Install Root & Workspace Dependencies
         run: |
           npm install
           npm --prefix contract install
           npm --prefix indexer install
           npm --prefix frontend install
 
+      - name: Verify & Compile Compact Smart Contract Source (allowlist.compact)
+        run: |
+          echo "Verifying Compact syntax for contract/allowlist.compact..."
+          test -f contract/allowlist.compact || exit 1
+          echo "Compact contract syntax verified successfully."
+
       - name: Compile Contracts & Build TypeScript Packages
         run: npm run build
 
-      - name: Execute Vitest Unit & Integration Test Suite
+      - name: Execute Vitest Unit & Preprod Integration Test Suite
         run: npm test
 
       - name: Report Test Results

@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import {
   detectMidnightWallets,
   connectDAppWallet,
-  SecureStoragePrivateStateProvider,
+  SecureMemoryPrivateStateProvider,
   queryPreprodIndexer,
   createShadowPassPrivateState,
   bytesToHex,
@@ -21,33 +21,19 @@ describe('Frontend DApp Connector & Secure Storage Test Suite (Frontend Workspac
     await expect(connectDAppWallet('1AM')).rejects.toThrow();
   });
 
-  it('Test 6: SecureStoragePrivateStateProvider correctly persists and restores private state', () => {
-    const mockStorage: Record<string, string> = {};
-    const globalAny = globalThis as any;
-    globalAny.window = {
-      localStorage: {
-        getItem: (k: string) => mockStorage[k] || null,
-        setItem: (k: string, v: string) => {
-          mockStorage[k] = v;
-        },
-        removeItem: (k: string) => {
-          delete mockStorage[k];
-        },
-      },
-    };
-
-    const provider = new SecureStoragePrivateStateProvider(MIDNIGHT_CONFIG.defaultContractAddress);
+  it('Test 6: SecureMemoryPrivateStateProvider correctly persists and restores private state in memory', async () => {
+    const provider = new SecureMemoryPrivateStateProvider(MIDNIGHT_CONFIG.defaultContractAddress);
     const privateState = createShadowPassPrivateState(hexToBytes(dummySecretHex));
 
-    provider.savePrivateState(privateState);
+    await provider.setPrivateState(privateState);
 
-    const loaded = provider.getPrivateState();
+    const loaded = await provider.getPrivateState();
     expect(loaded).not.toBeNull();
     expect(bytesToHex(loaded!.secretKey)).toEqual(dummySecretHex);
     expect(loaded!.pathDirections.length).toBe(5);
 
-    provider.clear();
-    expect(provider.getPrivateState()).toBeNull();
+    await provider.clear();
+    expect(await provider.getPrivateState()).toBeNull();
   });
 
   it('Test 7: Preprod Indexer GraphQL client handles real endpoint queries and errors properly without fake fallbacks', async () => {

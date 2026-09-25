@@ -1,7 +1,7 @@
 {
-  "name": "@midnight-ntwrk/bboard-cli",
-  "version": "0.1.0",
-  "author": "IOG",
+  "name": "@shadow-pass/cli",
+  "version": "1.0.0",
+  "author": "abhishek86038",
   "license": "MIT",
   "private": true,
   "type": "module",

@@ -8,6 +8,7 @@ describe('ShadowPass Backend Indexer Service Test Suite (Root Tests)', () => {
       allowlistRoot: '0x1122334455667788990011223344556677889900112233445566778899001122',
       accessGranted: 1,
       issuer: '0xadmin_issuer_pk',
+      nullifiers: new Set<string>(),
     };
 
     const recorded = recordIndexedEvent(mockState);

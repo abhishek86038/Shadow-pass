@@ -16,7 +16,7 @@ import {
   connectDAppWallet, 
   queryPreprodIndexer, 
   executeAccessGateCheck,
-  SecureStoragePrivateStateProvider,
+  SecureMemoryPrivateStateProvider,
   MIDNIGHT_CONFIG,
   ConnectedWalletSession,
   PublicLedgerState,
@@ -80,15 +80,7 @@ export default function App() {
 
   useEffect(() => {
     fetchOnChainState();
-    // Load persisted private state if available
-    const storage = new SecureStoragePrivateStateProvider();
-    const saved = storage.getPrivateState();
-    if (saved) {
-      const hex = bytesToHex(saved.secretKey);
-      setSecretKey(hex);
-    } else {
-      setSecretKey(sampleKeys[0].hex);
-    }
+    setSecretKey(sampleKeys[0].hex);
   }, []);
 
   const handleConnectWallet = async (preferred: '1AM' | 'Lace' | 'any') => {
@@ -115,6 +107,15 @@ export default function App() {
     if (!secretKey) return;
     if (isProving) return;
 
+    if (!walletSession) {
+      setExecutionResult({
+        success: false,
+        error: 'Wallet not connected. Please connect your 1AM or Midnight Lace wallet extension to submit on-chain ZK proof.',
+        timestamp: new Date().toLocaleTimeString(),
+      });
+      return;
+    }
+
     setIsProving(true);
     setProvingStep(1);
     setExecutionResult(null);
@@ -130,24 +131,11 @@ export default function App() {
         throw new Error('Secret key must be exactly 32 bytes (64 hex characters)');
       }
 
-      // If wallet is connected, execute real circuit call; otherwise simulate valid witness proof
-      let res;
-      if (walletSession) {
-        res = await executeAccessGateCheck(walletSession, secretBytes);
-      } else {
-        // Fallback local prover demonstration
-        await new Promise(r => setTimeout(r, 1600));
-        const nullifier = computeNullifier(secretBytes);
-        res = {
-          success: true,
-          txHash: '0x' + bytesToHex(crypto.getRandomValues(new Uint8Array(32))),
-          nullifierHex: '0x' + bytesToHex(nullifier)
-        };
-      }
+      const res = await executeAccessGateCheck(walletSession, secretBytes);
 
       setExecutionResult({
         ...res,
-        timestamp: new Date().toLocaleTimeString()
+        timestamp: new Date().toLocaleTimeString(),
       });
 
       if (res.success) {
@@ -157,7 +145,7 @@ export default function App() {
       setExecutionResult({
         success: false,
         error: err.message || 'ZK proof verification rejected',
-        timestamp: new Date().toLocaleTimeString()
+        timestamp: new Date().toLocaleTimeString(),
       });
     } finally {
       clearTimeout(timer1);
