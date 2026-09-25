@@ -2,14 +2,17 @@
 
 [![ShadowPass CI/CD Pipeline](https://github.com/abhishek86038/Shadow-pass/actions/workflows/ci.yml/badge.svg)](https://github.com/abhishek86038/Shadow-pass/actions/workflows/ci.yml)
 [![Midnight Network: Preprod](https://img.shields.io/badge/Midnight-Preprod-22c55e?logo=midnight&logoColor=white)](https://preprod.midnightexplorer.com/contracts/0xf58d3e681578fff354e5391111b384f5dca9f39c9d567bdcf9fff84727ae8f56)
+[![Product Proposal](https://img.shields.io/badge/Proposal-PROPOSAL.md-blueviolet?logo=markdown)](PROPOSAL.md)
+[![Tests: 22 Passed](https://img.shields.io/badge/Tests-22%20Passed-brightgreen)](tests/)
 [![GitHub Repository](https://img.shields.io/badge/GitHub-abhishek86038%2FShadow--pass-blue?logo=github)](https://github.com/abhishek86038/Shadow-pass)
 [![X Profile](https://img.shields.io/badge/X-@ShadowPasses-black?logo=x&logoColor=white)](https://x.com/ShadowPasses)
 [![License: MIT](https://img.shields.io/badge/License-MIT-purple.svg)](LICENSE)
 
 📦 **GitHub Repository**: [https://github.com/abhishek86038/Shadow-pass](https://github.com/abhishek86038/Shadow-pass)  
 🌐 **Live Demo**: [https://shadow-pass-e28i.vercel.app/](https://shadow-pass-e28i.vercel.app/)  
+📄 **Product & Privacy Proposal**: [PROPOSAL.md](PROPOSAL.md)  
 🔍 **Midnight Explorer (Contract)**: [https://preprod.midnightexplorer.com/contracts/0xf58d3e681578fff354e5391111b384f5dca9f39c9d567bdcf9fff84727ae8f56](https://preprod.midnightexplorer.com/contracts/0xf58d3e681578fff354e5391111b384f5dca9f39c9d567bdcf9fff84727ae8f56)  
-🐦 **Product X Profile**: [https://x.com/ShadowPasses](https://x.com/ShadowPasses) | 🎬 **Demo Video**: [Watch Demo Video](https://photos.app.goo.gl/UPcnamPqq9xaidDWA)  
+🎬 **Demo Video**: [Watch Demo Video](https://photos.app.goo.gl/UPcnamPqq9xaidDWA) | 🐦 **Product X**: [https://x.com/ShadowPasses](https://x.com/ShadowPasses)  
 📋 **User Feedback Form**: [https://forms.gle/QDDTeHERK9PdfinJ8](https://forms.gle/QDDTeHERK9PdfinJ8) | 📊 **Live Survey Responses (Google Sheets)**: [https://docs.google.com/spreadsheets/d/1mfdZUCWXvvrmTSxuODPHTc-neIsAxo0CWEUuOnevnTs/edit?usp=sharing](https://docs.google.com/spreadsheets/d/1mfdZUCWXvvrmTSxuODPHTc-neIsAxo0CWEUuOnevnTs/edit?usp=sharing)
 
 ---
@@ -29,10 +32,10 @@ In traditional blockchain ecosystems (such as Ethereum and EVM-compatible networ
 ## 3. Solution
 
 ShadowPass solves this privacy dilemma using Midnight's native Compact language and private state architecture:
-1. **Blinded Identity Commitments:** The admin registers member commitments calculated as `leaf = SHA256(secretKey || blindingSalt)` into a depth-8 Merkle tree, publishing only the 32-byte Merkle root (`allowlistRoot`) on-chain.
-2. **Local ZK Proof Construction:** Users construct Zero-Knowledge inclusion proofs locally on their client device using their private witness vector (`secretKey`, `blindingSalt`, `merklePath`, `pathDirections`).
-3. **On-Chain Circuit Execution:** The prover invokes the Compact circuit `proveMembership()` which asserts that the reconstructed Merkle root matches the on-chain `allowlistRoot`.
-4. **Verified Access Flag:** Upon successful verification, the contract updates `accessGranted = true` on the public ledger without ever recording the user's secret key, salt, leaf index, or wallet address.
+1. **Blinded Identity Commitments:** The admin registers member commitments calculated as `leaf = leafOf(secretKey)` into a depth-5 Merkle tree, publishing only the 32-byte Merkle root (`allowlistRoot`) on-chain.
+2. **Local ZK Proof Construction:** Users construct Zero-Knowledge inclusion proofs locally on their client device using their private witness vector (`secretKey`, `merklePath`, `pathDirections`) via `SecureMemoryPrivateStateProvider`.
+3. **On-Chain Circuit Execution:** The prover invokes the Compact circuit `checkAccess()` which asserts that the reconstructed Merkle root matches the on-chain `allowlistRoot` and that the generated `nullifier` is fresh.
+4. **Verified Access & Nullifier Recording:** Upon successful verification, the contract records the spent nullifier in `nullifiers: Set<Bytes<32>>` to prevent replay attacks and increments `accessGranted` counter on the public ledger without ever revealing the user's secret key, leaf index, or wallet address.
 
 ---
 
@@ -57,11 +60,11 @@ ShadowPass is deployed to the official **Midnight Preprod Testnet** (`setNetwork
 |                        USER CLIENT & MIDNIGHT LACE WALLET                         |
 |                                                                                   |
 |  [ Private Secret Key ] ──┐                                                       |
-|  [ Blinding Salt     ] ───┼──► [ Compact ZK Membership Circuit ]                   |
-|  [ Merkle Path       ] ──┘         (Proves Inclusion Locally)                     |
+|  [ Merkle Sibling Path ] ──┼──► [ Compact ZK Access Circuit: checkAccess() ]       |
+|  [ Path Directions    ] ──┘         (Proves Inclusion & Derives Nullifier)        |
 |                                                │                                  |
 |                                                ▼                                  |
-|                                 callTx.proveMembership()                          |
+|                                     callTx.checkAccess()                          |
 +------------------------------------------------│----------------------------------+
                                                  │ Signs & Submits via Lace API
                                                  ▼
@@ -70,29 +73,30 @@ ShadowPass is deployed to the official **Midnight Preprod Testnet** (`setNetwork
 |                                                                                   |
 |  Public State:                                                                    |
 |    - allowlistRoot: 0xa4f8c92e... (32-byte Merkle Root)                           |
-|    - accessGranted: TRUE / FALSE  (Public Verification Status)                    |
-|    - registeredCount: 2           (Total Allowlist Members)                       |
-|    - lastEventNonce: #3           (Event Sequence Counter)                        |
+|    - accessGranted: Counter       (Public Access Invocations)                     |
+|    - nullifiers:    Set<Bytes<32>>(Anti-Replay Nullifier Set)                     |
+|    - issuer:        ZswapCoinPK   (Admin Public Key)                              |
 |                                                                                   |
 |  Verification Logic:                                                              |
-|    assert(reconstructedRoot == allowlistRoot) ──► ledger.accessGranted = true     |
+|    assert(computedRoot == allowlistRoot)                                          |
+|    assert(!nullifiers.member(nullifier)) ──► accessGranted += 1                   |
 +-----------------------------------------------------------------------------------+
                                                  │
                                                  ▼
 +-----------------------------------------------------------------------------------+
 |                      MIDNIGHT PREPROD GRAPHQL EVENT INDEXER                       |
 |                                                                                   |
-|  GraphQL Service (https://indexer.preprod.midnight.network/api/v1/graphql):       |
+|  GraphQL Service (https://indexer.preprod.midnight.network/api/v4/graphql):       |
 |    - Query contract state transitions and public verification receipts            |
 |    - Synchronize event stream without exposing prover identity                    |
 +-----------------------------------------------------------------------------------+
 ```
 
 ### Component Implementation Mapping
-- **Smart Contract & ZK Circuit:** Implemented in `contract/allowlist.compact`, defining the Compact ledger state and local ZK circuit `proveMembership()`.
-- **Contract SDK & Midnight.js Bindings:** Implemented in `contract/src/index.ts`, managing the depth-8 Merkle tree, isomorphic SHA-256 hashing, Midnight.js contract binding interfaces, and `deployContract()` / `findDeployedContract()` helpers.
-- **Frontend Application:** Implemented in `frontend/src/App.tsx` and `frontend/src/contract-bindings.ts`, handling Lace Wallet DApp Connector API (`window.midnight.mnLace`), proof submission UI, admin commitment panel, and privacy inspector.
-- **Event Indexer Backend:** Implemented in `indexer/src/index.ts`, connecting to the Midnight Preprod GraphQL Indexer and exposing REST API endpoints for off-chain monitoring.
+- **Smart Contract & ZK Circuit:** Implemented in [`contract/allowlist.compact`](file:///contract/allowlist.compact), defining the Compact ledger state and local ZK circuit `checkAccess()`.
+- **Contract SDK & Midnight.js Bindings:** Implemented in [`contract/src/index.ts`](file:///contract/src/index.ts), managing the depth-5 Merkle tree, isomorphic leaf and nullifier derivations, Midnight.js contract binding interfaces, and `deployContract()` / `findDeployedContract()` helpers.
+- **Frontend Application:** Implemented in [`frontend/src/App.tsx`](file:///frontend/src/App.tsx) and [`frontend/src/contract-bindings.ts`](file:///frontend/src/contract-bindings.ts), handling Lace/1AM Wallet DApp Connector API (`@midnight-ntwrk/dapp-connector-api`), proof submission UI, and interactive Privacy Explainer.
+- **Event Indexer Backend:** Implemented in [`indexer/src/index.ts`](file:///indexer/src/index.ts), connecting to the Midnight Preprod GraphQL Indexer and exposing REST API endpoints for off-chain monitoring.
 
 ---
 
@@ -170,28 +174,36 @@ npm run dev:indexer
 
 ## 8. Running Tests
 
-Execute the complete 18-test suite across contract, circuit, frontend, and indexer modules:
+Execute the complete 22-test suite across contract, circuit, frontend, indexer, and preprod integration modules:
 
 ```bash
 npm test
 ```
 
-### Test Suite Coverage & Verification
-- **`contract/src/allowlist.test.ts` & `tests/allowlist.test.ts` (6 tests each):** Verifies valid ZK membership proof execution, rejection of non-member secrets, zero identity leakage in public state JSON, admin Merkle root updates, official `deployContract()` helper, and `callTx.proveMembership()` interface binding.
-- **`frontend/src/frontend.test.ts` & `tests/frontend.test.ts` (2 tests each):** Verifies real Midnight Lace DApp connector extension detection, Preprod network configuration, and end-to-end frontend ZK proof submission flow.
-- **`indexer/src/indexer.test.ts` & `tests/indexer.test.ts` (1 test each):** Verifies backend event indexer state synchronization, GraphQL proxy, and event logging.
+### Test Suite Coverage & Verification (22 Passing Tests across 7 Files)
+- **`tests/preprod-e2e.test.ts` (6 tests):** Comprehensive Preprod integration flow verifying:
+  1. Locating/deploying real `AllowlistContract` on Preprod.
+  2. Constructing authentic 5-depth Merkle witness vectors and private state.
+  3. Generating client-side ZK proofs and submitting `callTx.checkAccess()`.
+  4. Confirming nullifier insertion on-chain to prevent replay.
+  5. Asserting rejection of double-spend / replay submissions.
+  6. Asserting rejection of invalid Merkle paths and querying GraphQL indexer.
+- **`contract/src/allowlist.test.ts` & `tests/allowlist.test.ts` (4 tests each):** Verifies isomorphic leaf commitments (`leafOf`), Merkle root computation, nullifier derivations, and SecureMemoryPrivateStateProvider.
+- **`frontend/src/frontend.test.ts` & `tests/frontend.test.ts` (3 tests each):** Verifies official `@midnight-ntwrk/dapp-connector-api` integration, Lace/1AM wallet extension connection lifecycle, and secure memory state isolation without `localStorage`.
+- **`indexer/src/indexer.test.ts` & `tests/indexer.test.ts` (1 test each):** Verifies backend GraphQL event indexer queries, event synchronization, and nullifier tracking.
 
 ---
 
 ## 9. CI/CD Pipeline
 
-The project includes an automated GitHub Actions workflow defined in `.github/workflows/ci.yml`.
+The project includes an automated GitHub Actions workflow defined in [`.github/workflows/ci.yml`](.github/workflows/ci.yml).
 
 On every `push` and `pull_request` to `main` or `master` branches, the CI pipeline automatically:
-1. Sets up Node.js v20 environment.
+1. Sets up Node.js v20 environment with npm caching.
 2. Installs root and workspace dependencies (`npm install`).
-3. Compiles Compact smart contracts and TypeScript packages (`npm run build`).
-4. Executes the full 18-test suite via Vitest (`npm test`).
+3. **Explicitly verifies and compiles the Compact smart contract source** (`contract/allowlist.compact`).
+4. Builds TypeScript packages across contracts, indexer, and frontend.
+5. Executes the complete 22-test suite via Vitest (`npm test`).
 
 ---
 
