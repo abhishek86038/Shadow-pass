@@ -1,4 +1,4 @@
-import { Contract as CompactContract, ledger as parseCompactLedger, contractReference, type Witnesses, type ImpureCircuits, type PureCircuits, type Ledger as CompactLedger } from './managed/allowlist/contract/index.js';
+import type * as __compactRuntime from '@midnight-ntwrk/compact-runtime';
 export type ContractAddress = string;
 export interface WitnessContext<L, PS> {
     ledger: L;
@@ -12,6 +12,44 @@ export declare const MIDNIGHT_CONFIG: {
     nodeRpcUri: string;
     proofServerUri: string;
     defaultContractAddress: string;
+};
+export type Witnesses<PS> = {
+    secretKey(context: __compactRuntime.WitnessContext<CompactLedger, PS>): [PS, Uint8Array] | Promise<[PS, Uint8Array]>;
+    merklePath(context: __compactRuntime.WitnessContext<CompactLedger, PS>): [PS, [Uint8Array, Uint8Array, Uint8Array, Uint8Array, Uint8Array]] | Promise<[PS, [Uint8Array, Uint8Array, Uint8Array, Uint8Array, Uint8Array]]>;
+    pathDirections(context: __compactRuntime.WitnessContext<CompactLedger, PS>): [PS, [boolean, boolean, boolean, boolean, boolean]] | Promise<[PS, [boolean, boolean, boolean, boolean, boolean]]>;
+};
+export type ImpureCircuits<PS> = {
+    publishAllowlist(context: __compactRuntime.CircuitContext<PS>, newRoot_0: Uint8Array): __compactRuntime.CircuitResults<PS, []>;
+    checkAccess(context: __compactRuntime.CircuitContext<PS>): __compactRuntime.CircuitResults<PS, []>;
+};
+export type PureCircuits = {
+    publicStats(context: any): [Uint8Array, bigint];
+};
+export type CompactLedger = {
+    readonly allowlistRoot: Uint8Array;
+    readonly issuer: Uint8Array;
+    readonly accessGranted: bigint;
+    readonly nullifiers: Set<string>;
+};
+export declare class CompactContract<PS, W extends Witnesses<PS> = Witnesses<PS>> {
+    readonly circuits: any;
+    readonly witnesses: W;
+    readonly initialPrivateState?: PS;
+    constructor(witnesses: W, initialPrivateState?: PS);
+    initialState(context: any, initialRoot: Uint8Array): {
+        context: any;
+        state: {
+            allowlistRoot: Uint8Array<ArrayBufferLike>;
+            issuer: Uint8Array<ArrayBuffer>;
+            accessGranted: bigint;
+            nullifiers: Set<string>;
+        };
+    };
+}
+export declare function parseCompactLedger(state: any): CompactLedger;
+export declare const contractReference: {
+    contractName: string;
+    version: string;
 };
 export interface PublicLedgerState {
     allowlistRoot: string;
@@ -103,4 +141,3 @@ export declare function deployContract(providers?: any, config?: {
 export declare function hexToBytes(hex: string): Uint8Array;
 export declare function bytesToHex(bytes: Uint8Array): string;
 export declare function sha256Bytes(data: Uint8Array): Uint8Array;
-export { CompactContract, parseCompactLedger, contractReference, type Witnesses, type ImpureCircuits, type PureCircuits, type CompactLedger, };

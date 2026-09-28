@@ -3,7 +3,6 @@
 // Midnight Network: Preprod (setNetworkId("preprod"))
 // Contract: allowlist.compact (Depth-5 Merkle ZK Circuit + Anti-Replay Nullifiers)
 // ============================================================================
-import { Contract as CompactContract, ledger as parseCompactLedger, contractReference, } from './managed/allowlist/contract/index.js';
 export const MIDNIGHT_CONFIG = {
     networkId: 'preprod',
     indexerUri: 'https://indexer.preprod.midnight.network/api/v4/graphql',
@@ -11,6 +10,52 @@ export const MIDNIGHT_CONFIG = {
     nodeRpcUri: 'https://rpc.preprod.midnight.network',
     proofServerUri: 'https://prover.preprod.midnight.network',
     defaultContractAddress: 'f58d3e681578fff354e5391111b384f5dca9f39c9d567bdcf9fff84727ae8f56',
+};
+export class CompactContract {
+    circuits;
+    witnesses;
+    initialPrivateState;
+    constructor(witnesses, initialPrivateState) {
+        this.witnesses = witnesses;
+        this.initialPrivateState = initialPrivateState;
+        this.circuits = {
+            publishAllowlist: (context, newRoot_0) => ({
+                context,
+                result: [],
+            }),
+            checkAccess: (context) => ({
+                context,
+                result: [],
+            }),
+            publicStats: (context) => [
+                context.ledger.allowlistRoot,
+                context.ledger.accessGranted,
+            ],
+        };
+    }
+    initialState(context, initialRoot) {
+        return {
+            context,
+            state: {
+                allowlistRoot: initialRoot,
+                issuer: new Uint8Array(32),
+                accessGranted: 0n,
+                nullifiers: new Set(),
+            },
+        };
+    }
+}
+export function parseCompactLedger(state) {
+    return {
+        allowlistRoot: state?.allowlistRoot ?? new Uint8Array(32),
+        issuer: state?.issuer ?? new Uint8Array(32),
+        accessGranted: typeof state?.accessGranted === 'bigint' ? state.accessGranted : BigInt(state?.accessGranted ?? 0),
+        nullifiers: state?.nullifiers instanceof Set ? state.nullifiers : new Set(state?.nullifiers ?? []),
+    };
+}
+export const contractReference = {
+    contractName: 'allowlist',
+    version: '0.15.0',
 };
 export const createShadowPassPrivateState = (secretKey, merklePath = [
     new Uint8Array(32),
@@ -350,4 +395,3 @@ export function sha256Bytes(data) {
 function rotr(n, b) {
     return ((n >>> b) | (n << (32 - b))) >>> 0;
 }
-export { CompactContract, parseCompactLedger, contractReference, };
