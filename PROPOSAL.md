@@ -163,7 +163,8 @@ export circuit checkAccess(): [] {
 ShadowPass is deployed and verified on the **Midnight Preprod Testnet**:
 
 - **Contract Address**: `f58d3e681578fff354e5391111b384f5dca9f39c9d567bdcf9fff84727ae8f56`
-- **Explorer Link**: [https://preprod.midnightexplorer.com/contracts/0xf58d3e681578fff354e5391111b384f5dca9f39c9d567bdcf9fff84727ae8f56](https://preprod.midnightexplorer.com/contracts/0xf58d3e681578fff354e5391111b384f5dca9f39c9d567bdcf9fff84727ae8f56)
+- **Midnight Explorer**: [https://preprod.midnightexplorer.com/contracts/0xf58d3e681578fff354e5391111b384f5dca9f39c9d567bdcf9fff84727ae8f56](https://preprod.midnightexplorer.com/contracts/0xf58d3e681578fff354e5391111b384f5dca9f39c9d567bdcf9fff84727ae8f56)
+- **Subscan Explorer**: [https://midnight-preprod.subscan.io/contract/0xf58d3e681578fff354e5391111b384f5dca9f39c9d567bdcf9fff84727ae8f56](https://midnight-preprod.subscan.io/contract/0xf58d3e681578fff354e5391111b384f5dca9f39c9d567bdcf9fff84727ae8f56)
 - **Circuit Verified**: `checkAccess()` in `allowlist.compact`
 - **Network ID**: `preprod`
 - **Indexer Endpoint**: `https://indexer.preprod.midnight.network/api/v4/graphql`
