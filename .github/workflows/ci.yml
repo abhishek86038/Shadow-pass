@@ -10,6 +10,9 @@ jobs:
   build-and-test:
     name: Compile Compact Circuits & Execute Integration Test Suite
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
 
     steps:
       - name: Checkout Repository
@@ -28,12 +31,12 @@ jobs:
           npm --prefix indexer install
           npm --prefix frontend install
 
-      - name: Run Compact Compile (contract/allowlist.compact)
+      - name: Run Compact Compile (allowlist.compact)
         run: |
-          echo "Compiling Compact smart contract: contract/allowlist.compact"
-          test -f contract/allowlist.compact || (echo "Error: contract/allowlist.compact not found" && exit 1)
-          test -f preprod-deployment/contracts/src/allowlist.compact || (echo "Error: preprod-deployment allowlist.compact not found" && exit 1)
-          if command -v compact &> /dev/null; then
+          echo "Verifying Compact smart contract: contract/allowlist.compact"
+          test -f contract/allowlist.compact
+          test -f preprod-deployment/contracts/src/allowlist.compact
+          if command -v compact > /dev/null 2>&1; then
             compact compile contract/allowlist.compact
           else
             echo "Compact source contract syntax verified: contract/allowlist.compact"
