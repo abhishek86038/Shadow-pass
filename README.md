@@ -1,289 +1,237 @@
-# ShadowPass — Zero-Knowledge Private Allowlist Access dApp
+# ShadowPass — Zero-Knowledge Private Allowlist Access Protocol
 
-[![ShadowPass CI/CD Pipeline](https://github.com/abhishek86038/Shadow-pass/actions/workflows/ci.yml/badge.svg)](https://github.com/abhishek86038/Shadow-pass/actions/workflows/ci.yml)
-[![Midnight Network: Preprod](https://img.shields.io/badge/Midnight-Preprod-22c55e?logo=midnight&logoColor=white)](https://preprod.midnightexplorer.com/contracts/0xf58d3e681578fff354e5391111b384f5dca9f39c9d567bdcf9fff84727ae8f56)
-[![Product Proposal](https://img.shields.io/badge/Proposal-PROPOSAL.md-blueviolet?logo=markdown)](PROPOSAL.md)
-[![Tests: 22 Passed](https://img.shields.io/badge/Tests-22%20Passed-brightgreen)](tests/)
-[![GitHub Repository](https://img.shields.io/badge/GitHub-abhishek86038%2FShadow--pass-blue?logo=github)](https://github.com/abhishek86038/Shadow-pass)
-[![X Profile](https://img.shields.io/badge/X-@ShadowPasses-black?logo=x&logoColor=white)](https://x.com/ShadowPasses)
-[![License: MIT](https://img.shields.io/badge/License-MIT-purple.svg)](LICENSE)
+<div align="center">
 
-📦 **GitHub Repository**: [https://github.com/abhishek86038/Shadow-pass](https://github.com/abhishek86038/Shadow-pass)  
-🌐 **Live Demo**: [https://shadow-pass-e28i.vercel.app/](https://shadow-pass-e28i.vercel.app/)  
-📄 **Product & Privacy Proposal**: [PROPOSAL.md](PROPOSAL.md)  
-🔍 **Midnight Explorer (Contract)**: [https://preprod.midnightexplorer.com/contracts/0xf58d3e681578fff354e5391111b384f5dca9f39c9d567bdcf9fff84727ae8f56](https://preprod.midnightexplorer.com/contracts/0xf58d3e681578fff354e5391111b384f5dca9f39c9d567bdcf9fff84727ae8f56)  
-🎬 **Demo Video**: [Watch Demo Video](https://photos.app.goo.gl/UPcnamPqq9xaidDWA) | 🐦 **Product X**: [https://x.com/ShadowPasses](https://x.com/ShadowPasses)  
-📋 **User Feedback Form**: [https://forms.gle/QDDTeHERK9PdfinJ8](https://forms.gle/QDDTeHERK9PdfinJ8) | 📊 **Live Survey Responses (Google Sheets)**: [https://docs.google.com/spreadsheets/d/1mfdZUCWXvvrmTSxuODPHTc-neIsAxo0CWEUuOnevnTs/edit?usp=sharing](https://docs.google.com/spreadsheets/d/1mfdZUCWXvvrmTSxuODPHTc-neIsAxo0CWEUuOnevnTs/edit?usp=sharing)
+  [![ShadowPass CI/CD](https://github.com/abhishek86038/Shadow-pass/actions/workflows/ci.yml/badge.svg)](https://github.com/abhishek86038/Shadow-pass/actions/workflows/ci.yml)
+  [![Midnight Preprod](https://img.shields.io/badge/Midnight-Preprod%20Network-22c55e?logo=blockchain&logoColor=white)](https://preprod.midnightexplorer.com/contracts/0xf58d3e681578fff354e5391111b384f5dca9f39c9d567bdcf9fff84727ae8f56)
+  [![On-Chain Activity](https://img.shields.io/badge/Preprod%20Activity-52%2B%20On--Chain%20ZK%20Txns-10b981?logo=polkadot&logoColor=white)](USERS.md)
+  [![Tests](https://img.shields.io/badge/Tests-22%2F22%20Passing-emerald?logo=vitest&logoColor=white)](tests/)
+  [![Compact Smart Contract](https://img.shields.io/badge/Contract-Compact%20Circuit-8b5cf6?logo=compact&logoColor=white)](contract/allowlist.compact)
+  [![DApp Connector](https://img.shields.io/badge/Wallet-Official%20DApp%20Connector-3b82f6?logo=typescript&logoColor=white)](frontend/src/contract-bindings.ts)
+  [![Proposal](https://img.shields.io/badge/Proposal-PROPOSAL.md-blueviolet?logo=markdown)](PROPOSAL.md)
+  [![X (Twitter)](https://img.shields.io/badge/X-@ShadowPasses-black?logo=x&logoColor=white)](https://x.com/ShadowPasses)
+  [![License: MIT](https://img.shields.io/badge/License-MIT-purple.svg)](LICENSE)
 
----
+  <p align="center">
+    <strong>Decentralized, privacy-preserving allowlist access protocol built natively on the Midnight blockchain using Compact smart contracts, zero-knowledge Merkle proofs, and the official Midnight DApp Connector API.</strong>
+  </p>
 
-## 1. Overview
-
-**ShadowPass** is a privacy-preserving allowlist dApp built on the Midnight blockchain using Compact smart contracts, official Midnight.js contract bindings, and Zero-Knowledge proofs. It allows users to prove their membership in an admin-managed private allowlist without revealing their identity, wallet address, secret key, or Merkle tree position. ShadowPass was built for the **Midnight "New Moon to Full" Level 3 (First Quarter)** hackathon submission.
+</div>
 
 ---
 
-## 2. Problem Statement
+## 📋 Hackathon Submission Checklist (Level 5 — Full Moon)
 
-In traditional blockchain ecosystems (such as Ethereum and EVM-compatible networks), implementing allowlist access control for token presales, NFT mints, gated communities, or member-only features requires storing raw public wallet addresses on-chain or verifying signatures publicly. This architectural design creates a severe privacy flaw by exposing every member's wallet address to the public ledger. Observers can link wallet addresses to real-world identities, monitor private transaction histories, track overall asset balances, and target high-value members for exploits. EVM allowlists force users to choose between exclusive access and basic personal financial privacy.
+| Requirement | Status | Evidence / Direct Link |
+| :--- | :---: | :--- |
+| **Public GitHub Repository & Docs** | ✅ Completed | [abhishek86038/Shadow-pass](https://github.com/abhishek86038/Shadow-pass) with full cryptographic specifications and guides. |
+| **Live Working DApp Demo** | ✅ Completed | Hosted on Vercel: [https://shadow-pass-e28i.vercel.app/](https://shadow-pass-e28i.vercel.app/) |
+| **Full MVP Demo Walkthrough Video** | ✅ Completed | [Watch 1-Minute ShadowPass Demo Walkthrough](https://photos.app.goo.gl/UPcnamPqq9xaidDWA) |
+| **Verified Midnight Preprod Contract** | ✅ Completed | Deployed to Preprod: [`0xf58d3e68...`](https://preprod.midnightexplorer.com/contracts/0xf58d3e681578fff354e5391111b384f5dca9f39c9d567bdcf9fff84727ae8f56) (**52 verified on-chain transactions**). |
+| **52 Preprod User Verifications (On-Chain)** | ✅ Completed | 52 on-chain verifiable transactions documented in [USERS.md](USERS.md) & [PREPROD_USERS.md](PREPROD_USERS.md). |
+| **Launch Users Batch (20 On-Chain Users)** | ✅ Completed | 20 launch onboarded users with transaction hashes in [LAUNCH_USERS.md](LAUNCH_USERS.md). |
+| **User Feedback & Community Testing Loop** | ✅ Completed | 52 community testers analysis in [FEEDBACK.md](FEEDBACK.md), [Google Survey Form](https://forms.gle/QDDTeHERK9PdfinJ8), & [Live Survey Spreadsheet](https://docs.google.com/spreadsheets/d/1mfdZUCWXvvrmTSxuODPHTc-neIsAxo0CWEUuOnevnTs/edit?usp=sharing). |
+| **User Acquisition Strategy** | ✅ Completed | Documented community outreach and conversion funnel in [USER_ACQUISITION.md](USER_ACQUISITION.md). |
+| **Midnight Native Privacy Model** | ✅ Completed | Dual-state ledger, confidential witness commitments, and anti-replay nullifiers in [docs/privacy-model.md](docs/privacy-model.md). |
+| **System Architecture & Blueprints** | ✅ Completed | End-to-end topology, data flow, and circuit mapping in [docs/architecture.md](docs/architecture.md). |
+| **Security & Threat Model Analysis** | ✅ Completed | Soundness, anti-replay, and collision-resistance analysis in [docs/security.md](docs/security.md) & [docs/threat-model.md](docs/threat-model.md). |
+| **Automated Test Suites (22 Tests)** | ✅ Completed | 22/22 unit, preprod E2E, frontend, and indexer tests passing. See [docs/TESTING.md](docs/TESTING.md). |
+| **CI/CD Pipeline with Compact Compile** | ✅ Completed | GitHub Actions [ci.yml](.github/workflows/ci.yml) compiling Compact circuits and running test suites on every push. |
+| **Comprehensive User Guide** | ✅ Completed | Step-by-step user and operator instructions in [docs/USAGE.md](docs/USAGE.md). |
+| **Product Proposal Document** | ✅ Completed | Full product and architecture proposal in [PROPOSAL.md](PROPOSAL.md). |
+| **Official Product X Profile & Strategy** | ✅ Completed | [@ShadowPasses](https://x.com/ShadowPasses) with published posts and strategy in [docs/X-Profile.md](docs/X-Profile.md). |
+| **Brand Identity & Design Brief** | ✅ Completed | Design tokens, color system, and UI principles in [docs/brand-brief.md](docs/brand-brief.md). |
+| **Meaningful Commit History** | ✅ Completed | 90+ descriptive commits across contract development, test suites, and frontend bindings. |
 
 ---
 
-## 3. Solution
+## 🌐 Midnight Preprod Network & Deployment Information
 
-ShadowPass solves this privacy dilemma using Midnight's native Compact language and private state architecture:
-1. **Blinded Identity Commitments:** The admin registers member commitments calculated as `leaf = leafOf(secretKey)` into a depth-5 Merkle tree, publishing only the 32-byte Merkle root (`allowlistRoot`) on-chain.
-2. **Local ZK Proof Construction:** Users construct Zero-Knowledge inclusion proofs locally on their client device using their private witness vector (`secretKey`, `merklePath`, `pathDirections`) via `SecureMemoryPrivateStateProvider`.
-3. **On-Chain Circuit Execution:** The prover invokes the Compact circuit `checkAccess()` which asserts that the reconstructed Merkle root matches the on-chain `allowlistRoot` and that the generated `nullifier` is fresh.
-4. **Verified Access & Nullifier Recording:** Upon successful verification, the contract records the spent nullifier in `nullifiers: Set<Bytes<32>>` to prevent replay attacks and increments `accessGranted` counter on the public ledger without ever revealing the user's secret key, leaf index, or wallet address.
+ShadowPass is deployed and active on the **Midnight Preprod Testnet**:
 
----
-
-## 🌐 Midnight Preprod Network & Deployment Info
-
-ShadowPass is deployed to the official **Midnight Preprod Testnet** (`setNetworkId("preprod")`):
-
-- **Network ID**: `preprod`
 - **Contract Address**: `f58d3e681578fff354e5391111b384f5dca9f39c9d567bdcf9fff84727ae8f56`
+- **Circuit Verified**: `checkAccess()` in [`contract/allowlist.compact`](contract/allowlist.compact)
 - **Midnight Preprod Explorer**: [https://preprod.midnightexplorer.com/contracts/0xf58d3e681578fff354e5391111b384f5dca9f39c9d567bdcf9fff84727ae8f56](https://preprod.midnightexplorer.com/contracts/0xf58d3e681578fff354e5391111b384f5dca9f39c9d567bdcf9fff84727ae8f56)
-- **Preprod Explorer Portal**: [https://preprod.midnightexplorer.com/](https://preprod.midnightexplorer.com/)
+- **Network ID**: `preprod` (`setNetworkId("preprod")`)
 - **Preprod Indexer GraphQL**: `https://indexer.preprod.midnight.network/api/v4/graphql`
 - **Preprod Node RPC**: `https://rpc.preprod.midnight.network`
-- **CI/CD Deployment Action**: [Deploy to Preprod #34842858470](https://github.com/abhishek86038/Shadow-pass/actions/runs/34842858470)
+- **Proof Server Endpoint**: `https://prover.preprod.midnight.network`
 
 ---
 
-## 4. Architecture
+## 1. What This Product Does
 
+In traditional Web3 applications (token presales, NFT mints, gated DAOs, private alpha chats), allowlists are stored as public arrays of wallet addresses or require public on-chain signature verification. This publicly links every user's wallet address to their real-world identity, exposes their total net worth, and permanently compromises financial privacy.
+
+**ShadowPass solves this problem using Midnight's native Compact language and Zero-Knowledge proofs:**
+1. **Commitment Phase:** The admin registers blinded identity commitments (`leaf = persistentHash(sk, 0)`) into a Merkle tree, publishing only the 32-byte `allowlistRoot` on-chain.
+2. **Local ZK Proof Construction:** The user constructs a Zero-Knowledge inclusion proof locally on their client using their private witness vector (`secretKey`, `merklePath`, `pathDirections`) via `SecureMemoryPrivateStateProvider`.
+3. **On-Chain Circuit Execution:** The prover executes the Compact circuit `checkAccess()`, verifying that the reconstructed root matches `allowlistRoot` and asserting that the derived `nullifier = persistentHash(sk, 1)` has not been used previously.
+4. **Verified Access & Nullifier Recording:** The contract inserts the nullifier into `nullifiers: Set<Bytes<32>>` to prevent replay attacks and increments the `accessGranted` counter on the public ledger—**without ever learning or exposing the user's secret key, leaf index, or wallet address.**
+
+---
+
+## 2. System Architecture
+
+```mermaid
+flowchart TB
+    subgraph Client ["Client Browser & DApp Layer"]
+        UI["React 18 + Vite Frontend"]
+        W["Midnight Lace / 1AM Wallet Extension"]
+        WProv["SecureMemoryPrivateStateProvider"]
+        ZKProver["Midnight WASM Proof Engine"]
+    end
+
+    subgraph MidnightContract ["Midnight Smart Contract Layer"]
+        Compact["allowlist.compact Circuit Engine"]
+        StatePub["Public Ledger State<br/>(allowlistRoot, accessGranted, nullifiers)"]
+        StatePriv["Private Witness Context<br/>(secretKey, merklePath, pathDirections)"]
+    end
+
+    subgraph Network ["Midnight Preprod Network"]
+        RPC["Preprod Node RPC<br/>(https://rpc.preprod.midnight.network)"]
+        ProverSrv["Midnight Preprod Proof Server<br/>(https://prover.preprod.midnight.network)"]
+        Indexer["GraphQL Event Indexer<br/>(https://indexer.preprod.midnight.network/api/v4/graphql)"]
+    end
+
+    subgraph Backend ["ShadowPass Indexer & Monitoring"]
+        IndexService["Node.js / Express GraphQL Sync Service"]
+        REST["REST API & Event Cache"]
+    end
+
+    UI -->|"1. Connect via DApp Connector"| W
+    UI -->|"2. Load Private State"| WProv
+    WProv -->|"3. Supply Witness Vectors"| ZKProver
+    ZKProver -->|"4. Synthesize ZK Proof"| Compact
+    Compact -->|"5. Assert Invariants"| StatePub
+    W -->|"6. Sign & Balance Transaction"| RPC
+    RPC -->|"7. Mine Block & Finalize"| StatePub
+    StatePub -->|"8. Push Block Events"| Indexer
+    Indexer -->|"9. Query Ledger States"| IndexService
+    IndexService -->|"10. Feed Real-time Updates"| UI
 ```
-+-----------------------------------------------------------------------------------+
-|                        USER CLIENT & MIDNIGHT LACE WALLET                         |
-|                                                                                   |
-|  [ Private Secret Key ] ──┐                                                       |
-|  [ Merkle Sibling Path ] ──┼──► [ Compact ZK Access Circuit: checkAccess() ]       |
-|  [ Path Directions    ] ──┘         (Proves Inclusion & Derives Nullifier)        |
-|                                                │                                  |
-|                                                ▼                                  |
-|                                     callTx.checkAccess()                          |
-+------------------------------------------------│----------------------------------+
-                                                 │ Signs & Submits via Lace API
-                                                 ▼
-+-----------------------------------------------------------------------------------+
-|                           MIDNIGHT PREPROD PUBLIC LEDGER                          |
-|                                                                                   |
-|  Public State:                                                                    |
-|    - allowlistRoot: 0xa4f8c92e... (32-byte Merkle Root)                           |
-|    - accessGranted: Counter       (Public Access Invocations)                     |
-|    - nullifiers:    Set<Bytes<32>>(Anti-Replay Nullifier Set)                     |
-|    - issuer:        ZswapCoinPK   (Admin Public Key)                              |
-|                                                                                   |
-|  Verification Logic:                                                              |
-|    assert(computedRoot == allowlistRoot)                                          |
-|    assert(!nullifiers.member(nullifier)) ──► accessGranted += 1                   |
-+-----------------------------------------------------------------------------------+
-                                                 │
-                                                 ▼
-+-----------------------------------------------------------------------------------+
-|                      MIDNIGHT PREPROD GRAPHQL EVENT INDEXER                       |
-|                                                                                   |
-|  GraphQL Service (https://indexer.preprod.midnight.network/api/v4/graphql):       |
-|    - Query contract state transitions and public verification receipts            |
-|    - Synchronize event stream without exposing prover identity                    |
-+-----------------------------------------------------------------------------------+
-```
-
-### Component Implementation Mapping
-- **Smart Contract & ZK Circuit:** Implemented in [`contract/allowlist.compact`](file:///contract/allowlist.compact), defining the Compact ledger state and local ZK circuit `checkAccess()`.
-- **Contract SDK & Midnight.js Bindings:** Implemented in [`contract/src/index.ts`](file:///contract/src/index.ts), managing the depth-5 Merkle tree, isomorphic leaf and nullifier derivations, Midnight.js contract binding interfaces, and `deployContract()` / `findDeployedContract()` helpers.
-- **Frontend Application:** Implemented in [`frontend/src/App.tsx`](file:///frontend/src/App.tsx) and [`frontend/src/contract-bindings.ts`](file:///frontend/src/contract-bindings.ts), handling Lace/1AM Wallet DApp Connector API (`@midnight-ntwrk/dapp-connector-api`), proof submission UI, and interactive Privacy Explainer.
-- **Event Indexer Backend:** Implemented in [`indexer/src/index.ts`](file:///indexer/src/index.ts), connecting to the Midnight Preprod GraphQL Indexer and exposing REST API endpoints for off-chain monitoring.
 
 ---
 
-## 5. 🔒 Privacy Model
+## 3. 🔒 Privacy Model: What Stays Private vs. What is Public
 
-The ShadowPass privacy model enforces a strict separation between public on-chain ledger state and client-side private state:
+| Data Item | Visibility | Storage Location | Cryptographic Guarantee |
+| :--- | :---: | :---: | :--- |
+| **Prover Secret Key (`secretKey`)** | 🔒 Private | Client Secure Memory | Never transmitted; consumed strictly inside WASM ZK prover. |
+| **Merkle Sibling Path (`merklePath`)** | 🔒 Private | Client Secure Memory | Reconstructs root within circuit; zero path exposure. |
+| **Path Directions (`pathDirections`)** | 🔒 Private | Client Secure Memory | Left/right bits kept strictly inside private witness. |
+| **Prover Wallet Address** | 🔒 Private | Local Wallet | Unlinked from allowlist identity; fee balancing is orthogonal. |
+| **Committed Root (`allowlistRoot`)** | 👁️ Public | On-Chain Ledger | 32-byte cryptographic root representing all authorized members. |
+| **Authorization Counter (`accessGranted`)** | 👁️ Public | On-Chain Ledger | Public counter incremented upon verified ZK execution. |
+| **Nullifier Set (`nullifiers`)** | 👁️ Public | On-Chain Ledger | Disclosed one-way nullifier to prevent double-claiming. |
 
-### What an observer CAN see:
-- 🟢 **The Merkle Root (`allowlistRoot`):** A 32-byte hash representing the commitment tree of authorized members.
-- 🟢 **The Public Verification Result (`accessGranted`):** A boolean flag indicating whether a valid member successfully proved access.
-- 🟢 **Total Registered Member Count (`registeredCount`):** The number of identity commitments added by the admin.
-- 🟢 **Contract Address & Nonce (`lastEventNonce`):** Transaction nonces for event indexer synchronization.
-
-### What an observer CANNOT see:
-- 🛑 **Which specific member proved access:** No leaf index, member ID, or position in the tree is revealed.
-- 🛑 **The member's wallet address or public identity:** The prover's wallet address is never recorded on-chain or passed to contract state.
-- 🛑 **The member's private secret key (`witnessSecretKey`):** Secret keys remain strictly inside local client witness storage.
-- 🛑 **Blinding salts or Merkle sibling paths:** Authentication paths remain local to the prover's Compact circuit context.
-- 🛑 **Proof linkability:** Multiple proofs submitted by the same member generate identical, un-linkable public state transitions.
-
-> **Contrast:** Unlike a traditional EVM allowlist where every member's public address is visibly listed on-chain, ShadowPass ensures the public ledger only ever sees *"a valid member proved access"* — never who.
+*For full cryptographic disclosures, see [docs/privacy-model.md](docs/privacy-model.md).*
 
 ---
 
-## 6. Tech Stack
+## 4. Tech Stack Specification
 
-- **Smart Contract / Circuits:** Midnight Compact language (`allowlist.compact`)
-- **Midnight SDK & Runtime:** `@midnight-ntwrk/compact-runtime`, `@midnight-ntwrk/dapp-connector-api`, `@midnight-ntwrk/midnight-js-contracts`
-- **Frontend Framework:** React (v18.2), TypeScript (v5.4), Vite (v5.1), Tailwind CSS (v3.4), Lucide Icons, Framer Motion
-- **Backend Indexer:** Node.js, Express (v4.19), GraphQL client, CORS
-- **Testing Framework:** Vitest (v1.6) for unit and integration testing (18 passing tests)
-- **CI/CD Pipeline:** GitHub Actions (`.github/workflows/ci.yml`)
+- **Smart Contract & Circuits:** Midnight Compact language (`allowlist.compact`)
+- **Midnight SDK & Bindings:** `@midnight-ntwrk/compact-runtime`, `@midnight-ntwrk/dapp-connector-api`, `@midnight-ntwrk/midnight-js-contracts`
+- **Frontend Application:** React 18, TypeScript 5.4, Vite 5.1, Tailwind CSS 3.4, Lucide Icons, Framer Motion
+- **Backend Indexer:** Node.js, Express 4.19, GraphQL client, CORS
+- **Automated Testing:** Vitest 1.6 (22 passing tests across contract, frontend, indexer, and preprod E2E integration suites)
+- **CI/CD Automation:** GitHub Actions (`.github/workflows/ci.yml`)
 
 ---
 
-## 7. Getting Started
+## 5. Local Setup & Reproduction Guide
 
 ### Prerequisites
 - **Node.js:** `v20.x` or higher
 - **npm:** `v10.x` or higher
-- **Midnight Lace Wallet Extension:** Configured to Preprod Testnet
+- **Midnight Lace Wallet Extension:** Configured to Midnight Preprod Testnet
 
-### Installation & Quick Start
-
-1. Clone the repository and install root dependencies:
+### 1. Clone & Install
 ```bash
 git clone https://github.com/abhishek86038/Shadow-pass.git
 cd Shadow-pass
 npm install
-```
-
-2. Install sub-package workspace dependencies:
-```bash
 npm --prefix contract install
 npm --prefix indexer install
 npm --prefix frontend install
 ```
 
-3. Compile Compact smart contracts and build TypeScript packages:
+### 2. Build All Packages
 ```bash
 npm run build
 ```
 
-4. Start the Frontend Development Server (Port 3000):
+### 3. Run Automated Test Suite (22 Tests)
 ```bash
-npm run dev:frontend
+npm test
 ```
 
-5. Start the Event Indexer Service (Port 4000):
+### 4. Start Development Servers
 ```bash
+# Start frontend application (Port 3000)
+npm run dev:frontend
+
+# Start backend indexer service (Port 4000)
 npm run dev:indexer
 ```
 
 ---
 
-## 8. Running Tests
+## 6. Automated Testing Suite (22 / 22 Tests Passing)
 
-Execute the complete 22-test suite across contract, circuit, frontend, indexer, and preprod integration modules:
+Execute the full test suite via Vitest:
 
 ```bash
 npm test
 ```
 
-### Test Suite Coverage & Verification (22 Passing Tests across 7 Files)
-- **`tests/preprod-e2e.test.ts` (6 tests):** Comprehensive Preprod integration flow verifying:
-  1. Locating/deploying real `AllowlistContract` on Preprod.
-  2. Constructing authentic 5-depth Merkle witness vectors and private state.
-  3. Generating client-side ZK proofs and submitting `callTx.checkAccess()`.
-  4. Confirming nullifier insertion on-chain to prevent replay.
-  5. Asserting rejection of double-spend / replay submissions.
-  6. Asserting rejection of invalid Merkle paths and querying GraphQL indexer.
-- **`contract/src/allowlist.test.ts` & `tests/allowlist.test.ts` (4 tests each):** Verifies isomorphic leaf commitments (`leafOf`), Merkle root computation, nullifier derivations, and SecureMemoryPrivateStateProvider.
-- **`frontend/src/frontend.test.ts` & `tests/frontend.test.ts` (3 tests each):** Verifies official `@midnight-ntwrk/dapp-connector-api` integration, Lace/1AM wallet extension connection lifecycle, and secure memory state isolation without `localStorage`.
-- **`indexer/src/indexer.test.ts` & `tests/indexer.test.ts` (1 test each):** Verifies backend GraphQL event indexer queries, event synchronization, and nullifier tracking.
+### Test Suite Breakdown:
+- **`tests/preprod-e2e.test.ts` (6 tests):** Real contract lookup/deployment, witness synthesis, `callTx.checkAccess()` execution, on-chain nullifier verification, anti-replay rejection, and invalid path rejection.
+- **`contract/src/allowlist.test.ts` & `tests/allowlist.test.ts` (4 tests each):** Cryptographic leaf derivation (`leafOf`), 5-depth Merkle root calculation, nullifier generation, and `SecureMemoryPrivateStateProvider`.
+- **`frontend/src/frontend.test.ts` & `tests/frontend.test.ts` (3 tests each):** Official `@midnight-ntwrk/dapp-connector-api` integration, Lace/1AM wallet extension connection lifecycle, and secure memory isolation.
+- **`indexer/src/indexer.test.ts` & `tests/indexer.test.ts` (1 test each):** Preprod GraphQL indexer queries, event synchronization, and nullifier tracking.
+
+*For full testing documentation, see [docs/TESTING.md](docs/TESTING.md).*
 
 ---
 
-## 9. CI/CD Pipeline
+## 7. Visual Evidence & Screenshots
 
-The project includes an automated GitHub Actions workflow defined in [`.github/workflows/ci.yml`](.github/workflows/ci.yml).
+***🛡️ ShadowPass DApp User Interface***  
+![ShadowPass UI](image.png)
 
-On every `push` and `pull_request` to `main` or `master` branches, the CI pipeline automatically:
-1. Sets up Node.js v20 environment with npm caching.
-2. Installs root and workspace dependencies (`npm install`).
-3. **Explicitly verifies and compiles the Compact smart contract source** (`contract/allowlist.compact`).
-4. Builds TypeScript packages across contracts, indexer, and frontend.
-5. Executes the complete 22-test suite via Vitest (`npm test`).
+***🧪 22 Passing Unit & Preprod Integration Tests***  
+![Passing Tests](image-4.png)
 
----
-
-## 10. Visual Evidence & Screenshots
-
-Here is the visual evidence showing the running GhostVault dApp UI, the local Vitest suite execution, and the GitHub Actions CI/CD run status:
-
-***🛡️ GhostVault / dApp UI ***
-![alt text](image.png)
-***🧪 Passing Unit & Integration Tests***
-![alt text](image-4.png)
-***💚 GitHub Actions CI/CD Run Status ***
-![alt text](image-3.png)
----
-
-## 11. Live Demo
-
-🔗 Live demo: [shadow-pass-e28i.vercel.app](https://shadow-pass-e28i.vercel.app/)
+***💚 GitHub Actions CI/CD Pipeline***  
+![CI Pipeline](image-3.png)
 
 ---
 
-## 12. Demo Video
+## 8. 🌟 Level 5 Community Testing & Feedback Campaign
 
-🎥 Demo video (1 min): [Watch Demo Video](https://photos.app.goo.gl/UPcnamPqq9xaidDWA)
+ShadowPass completed an extensive community testing loop on Midnight Preprod with **52 unique community testers**:
 
----
-
-## 13. Project Structure
-
-```
-ShadowPass/
-├── .github/workflows/ci.yml    # GitHub Actions workflow for automated compile & test
-├── contract/                   # Midnight Compact smart contract & TypeScript SDK package
-│   ├── allowlist.compact       # Compact smart contract & ZK membership circuit
-│   └── src/index.ts            # Merkle tree implementation, Midnight.js contract binding & deploy helpers
-├── frontend/                   # React + TypeScript + Vite + Tailwind dApp
-│   ├── src/App.tsx             # Main user interface & Privacy Model inspector
-│   ├── src/contract-bindings.ts# Midnight Lace DApp Connector API & callTx circuit execution
-│   └── vercel.json             # Vercel deployment configuration
-├── indexer/                    # Midnight Preprod GraphQL event indexer service
-│   └── src/index.ts            # GraphQL query client & REST monitoring API
-├── tests/                      # Full Vitest integration test suite (18 tests)
-└── README.md                   # Complete protocol documentation & deployment specification
-```
-
----
-
-## 14. 🌟 Level 5 — Community Feedback & Live Testing Loop
-
-ShadowPass completed a comprehensive Level 5 user testing campaign on the Midnight Preprod Network with **52 unique community testers**:
-
-- **Google Feedback Survey**: [https://forms.gle/QDDTeHERK9PdfinJ8](https://forms.gle/QDDTeHERK9PdfinJ8)
-- **Live Survey Responses (Google Sheets)**: [https://docs.google.com/spreadsheets/d/1mfdZUCWXvvrmTSxuODPHTc-neIsAxo0CWEUuOnevnTs/edit?usp=sharing](https://docs.google.com/spreadsheets/d/1mfdZUCWXvvrmTSxuODPHTc-neIsAxo0CWEUuOnevnTs/edit?usp=sharing)
-- **Detailed User Feedback Report**: [FEEDBACK.md](FEEDBACK.md) | [docs/FEEDBACK.md](docs/FEEDBACK.md)
+- **Feedback Report**: [FEEDBACK.md](FEEDBACK.md) | [docs/FEEDBACK.md](docs/FEEDBACK.md)
 - **Verified On-Chain Users Ledger (52 TxIds)**: [USERS.md](USERS.md) | [PREPROD_USERS.md](PREPROD_USERS.md)
-- **User Acquisition & Outreach Strategy**: [USER_ACQUISITION.md](USER_ACQUISITION.md) | [docs/USER_ACQUISITION.md](docs/USER_ACQUISITION.md)
+- **Launch Users Ledger (20 TxIds)**: [LAUNCH_USERS.md](LAUNCH_USERS.md)
+- **Google Feedback Survey**: [https://forms.gle/QDDTeHERK9PdfinJ8](https://forms.gle/QDDTeHERK9PdfinJ8)
+- **Live Survey Spreadsheet (Google Sheets)**: [https://docs.google.com/spreadsheets/d/1mfdZUCWXvvrmTSxuODPHTc-neIsAxo0CWEUuOnevnTs/edit?usp=sharing](https://docs.google.com/spreadsheets/d/1mfdZUCWXvvrmTSxuODPHTc-neIsAxo0CWEUuOnevnTs/edit?usp=sharing)
+- **User Outreach & Acquisition**: [USER_ACQUISITION.md](USER_ACQUISITION.md)
 
 ### Key Metrics from 52 Community Testers:
 - **Satisfaction Rate:** 98% (Average 4.9/5.0)
-- **Zero-Knowledge Privacy Confidence:** 98%
-- **All 52 Proofs Verified On-Chain:** [Midnight Explorer Contract Link](https://preprod.midnightexplorer.com/contracts/0xf58d3e681578fff354e5391111b384f5dca9f39c9d567bdcf9fff84727ae8f56)
+- **Zero-Knowledge Privacy Trust:** 98%
+- **All 52 Proofs Verified On-Chain:** [Midnight Preprod Explorer Contract](https://preprod.midnightexplorer.com/contracts/0xf58d3e681578fff354e5391111b384f5dca9f39c9d567bdcf9fff84727ae8f56)
 
 ---
 
-## 15. License
+## 9. Project Links & Repository Metadata
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
-## 16. Repository & Project Details
-
+- **Live DApp**: [https://shadow-pass-e28i.vercel.app/](https://shadow-pass-e28i.vercel.app/)
+- **Product Proposal**: [PROPOSAL.md](PROPOSAL.md)
+- **Demo Video (1 min)**: [Watch Demo Video](https://photos.app.goo.gl/UPcnamPqq9xaidDWA)
 - **Product X (Twitter)**: [https://x.com/ShadowPasses](https://x.com/ShadowPasses)
 - **GitHub Repository**: [https://github.com/abhishek86038/Shadow-pass](https://github.com/abhishek86038/Shadow-pass)
-- **Primary Branch**: `main`
-- **Author / Maintainer**: `abhishek86038`
-- **Live dApp URL**: [https://shadow-pass-e28i.vercel.app/](https://shadow-pass-e28i.vercel.app/)
-- **Demo Video**: [https://photos.app.goo.gl/UPcnamPqq9xaidDWA](https://photos.app.goo.gl/UPcnamPqq9xaidDWA)
-- **User Feedback Form**: [https://forms.gle/QDDTeHERK9PdfinJ8](https://forms.gle/QDDTeHERK9PdfinJ8)
-- **Live Feedback Responses (Google Sheets)**: [https://docs.google.com/spreadsheets/d/1mfdZUCWXvvrmTSxuODPHTc-neIsAxo0CWEUuOnevnTs/edit?usp=sharing](https://docs.google.com/spreadsheets/d/1mfdZUCWXvvrmTSxuODPHTc-neIsAxo0CWEUuOnevnTs/edit?usp=sharing)
-- **Hackathon Level**: Midnight Hackathon Level 4 & Level 5 (Full Moon)
-
-
+- **License**: [MIT License](LICENSE)
