@@ -1,0 +1,9 @@
+{
+  "version": { "major": 0, "minor": 15, "patch": 0 },
+  "circuit": "publicStats",
+  "contract": "allowlist",
+  "outputs": [
+    { "name": "allowlistRoot", "type": "Bytes<32>" },
+    { "name": "accessGranted", "type": "Uint<64>" }
+  ]
+}

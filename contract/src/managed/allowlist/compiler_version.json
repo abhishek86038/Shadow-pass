@@ -1,0 +1,6 @@
+{
+  "compiler_version": "0.15.0",
+  "language_version": "0.15.0",
+  "contract": "allowlist.compact",
+  "target": "midnight-preprod"
+}

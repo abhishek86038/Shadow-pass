@@ -1,0 +1,17 @@
+{
+  "version": { "major": 0, "minor": 15, "patch": 0 },
+  "circuit": "checkAccess",
+  "contract": "allowlist",
+  "witness_inputs": [
+    { "name": "secretKey", "type": "Bytes<32>" },
+    { "name": "merklePath", "type": "Vector<5, Bytes<32>>" },
+    { "name": "pathDirections", "type": "Vector<5, Boolean>" }
+  ],
+  "disclosed_outputs": [
+    { "name": "nullifier", "type": "Bytes<32>" }
+  ],
+  "assertions": [
+    "candidateRoot == allowlistRoot",
+    "!nullifiers.member(disclose(nullifier))"
+  ]
+}

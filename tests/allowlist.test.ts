@@ -40,18 +40,18 @@ describe('Authoritative Midnight Compact Circuit & ZK Allowlist Test Suite', () 
     expect(bytesToHex(nullifier1)).not.toEqual(bytesToHex(distinctNullifier));
   });
 
-  it('Test 3: Private witnesses provider extracts witness data without mutation', () => {
+  it('Test 3: Private witnesses provider extracts witness data without mutation', async () => {
     const privateState = createShadowPassPrivateState(secretKey1Bytes);
     const mockContext = { privateState } as any;
 
-    const [stateOut, extractedSecret] = witnesses.secretKey(mockContext);
+    const [stateOut, extractedSecret] = await witnesses.secretKey(mockContext);
     expect(stateOut).toBe(privateState);
     expect(bytesToHex(extractedSecret)).toEqual(secretKey1Hex);
 
-    const [, path] = witnesses.merklePath(mockContext);
+    const [, path] = await witnesses.merklePath(mockContext);
     expect(path.length).toBe(5);
 
-    const [, directions] = witnesses.pathDirections(mockContext);
+    const [, directions] = await witnesses.pathDirections(mockContext);
     expect(directions.length).toBe(5);
   });
 

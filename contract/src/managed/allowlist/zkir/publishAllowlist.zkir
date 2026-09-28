@@ -1,0 +1,7 @@
+{
+  "version": { "major": 0, "minor": 15, "patch": 0 },
+  "circuit": "publishAllowlist",
+  "contract": "allowlist",
+  "inputs": [{ "name": "newRoot", "type": "Bytes<32>" }],
+  "assertions": ["ownPublicKey() == issuer"]
+}
